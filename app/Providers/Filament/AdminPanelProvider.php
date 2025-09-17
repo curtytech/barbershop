@@ -53,6 +53,13 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Home')
+                    ->url('/')
+                    ->icon('heroicon-o-home')
+                    ->sort(-1) // Ensures it's the first item
+                    ->openUrlInNewTab(),
             ]);
     }
 }

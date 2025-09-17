@@ -10,12 +10,7 @@ class AppointmentTime extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'key';
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $fillable = [
-        'key',
         'user_id',
         'start_time',
         'end_time',

@@ -37,14 +37,6 @@ class ServiceResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informações do Serviço')
                     ->schema([
-                        Forms\Components\TextInput::make('key')
-                            ->label('Chave')
-                            ->required()
-                            ->unique(Service::class, 'key', ignoreRecord: true)
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('key', Str::slug($state)) : null),
-                        
                         Forms\Components\TextInput::make('name')
                             ->label('Nome')
                             ->required()
@@ -103,15 +95,7 @@ class ServiceResource extends Resource
                     ->label('Imagem')
                     ->circular()
                     ->size(60),
-                
-                Tables\Columns\TextColumn::make('key')
-                    ->label('Chave')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->copyMessage('Chave copiada!')
-                    ->copyMessageDuration(1500),
-                
+                                
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->searchable()

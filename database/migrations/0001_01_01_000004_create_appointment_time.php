@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appointment_times', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->string('user_id');
+            $table->id();
+            $table->unsignedBigInteger('user_id'); // Corrigido: deve ser unsignedBigInteger para corresponder ao id da tabela users
             $table->time('start_time');
             $table->time('end_time')->nullable();
             $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])->nullable();

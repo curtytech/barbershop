@@ -85,4 +85,41 @@ class User extends Authenticatable
             ->whereIn('type', ['break', 'lunch'])
             ->where('is_active', true);
     }
+
+    /**
+     * Get the appointments for the user.
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * Get upcoming appointments for the user.
+     */
+    public function upcomingAppointments()
+    {
+        return $this->hasMany(Appointment::class)
+            ->where('date', '>=', now()->toDateString())
+            ->orderBy('date')
+            ->orderBy('appointment_time');
+    }
+
+    /**
+     * Get today's appointments for the user.
+     */
+    public function todayAppointments()
+    {
+        return $this->hasMany(Appointment::class)
+            ->where('date', now()->toDateString())
+            ->orderBy('appointment_time');
+    }
+
+    /**
+     * Get the services for the user.
+     */
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
 }
