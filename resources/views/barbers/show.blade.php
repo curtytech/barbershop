@@ -130,6 +130,11 @@
                 <div class="swiper-button-next"></div>
                 <div class="swiper-button-prev"></div>
             </div>
+            <div class="text-center mt-8">
+                <button id="openModalBtnServices" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-bold transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center">
+                    <i class="fas fa-calendar-plus mr-2"></i> Agendar Serviço
+                </button>
+            </div>
         </div>
     </div>
 
@@ -246,12 +251,18 @@
         // Controle do Modal
         const modal = document.getElementById('appointmentModal');
         const openModalBtn = document.getElementById('openModalBtn');
+        const openModalBtnServices = document.getElementById('openModalBtnServices');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const confirmBtn = document.getElementById('confirmAppointment');
         const timeSlots = document.querySelectorAll('.time-slot');
         
         // Abrir Modal
         openModalBtn.addEventListener('click', function() {
+            modal.classList.remove('hidden');
+        });
+        
+        // Abrir modal a partir do botão na seção de serviços
+        openModalBtnServices.addEventListener('click', function() {
             modal.classList.remove('hidden');
         });
         
