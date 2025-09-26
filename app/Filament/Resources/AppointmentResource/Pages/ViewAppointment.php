@@ -46,6 +46,12 @@ class ViewAppointment extends ViewRecord
                             
                         TextEntry::make('service.formatted_price')
                             ->label('Valor do Serviço'),
+                            
+                        TextEntry::make('client_name')
+                            ->label('Nome do Cliente'),
+                            
+                        TextEntry::make('client_phone')
+                            ->label('Telefone do Cliente'),
                     ])
                     ->columns(2),
                     

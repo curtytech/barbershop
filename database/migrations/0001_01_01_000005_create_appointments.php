@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('service_id');
+            $table->string('client_name');
+            $table->string('client_phone');
             $table->time('appointment_time');
             $table->date('date');
             $table->enum('status', ['scheduled', 'confirmed', 'completed', 'cancelled'])->default('scheduled');

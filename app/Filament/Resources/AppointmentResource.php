@@ -46,6 +46,17 @@ class AppointmentResource extends Resource
                             ->required()
                             ->searchable()
                             ->live(),
+                            
+                        Forms\Components\TextInput::make('client_name')
+                            ->label('Nome do Cliente')
+                            ->required()
+                            ->maxLength(255),
+                            
+                        Forms\Components\TextInput::make('client_phone')
+                            ->label('Telefone do Cliente')
+                            ->required()
+                            ->tel()
+                            ->maxLength(20),
                     ])
                     ->columns(2),
                     
@@ -155,6 +166,16 @@ class AppointmentResource extends Resource
                     })
                     ->sortable(),
                     
+                Tables\Columns\TextColumn::make('client_name')
+                    ->label('Nome do Cliente')
+                    ->searchable()
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('client_phone')
+                    ->label('Telefone')
+                    ->searchable()
+                    ->sortable(),
+                    
                 Tables\Columns\TextColumn::make('service.formatted_price')
                     ->label('Valor')
                     ->sortable(),
@@ -187,6 +208,36 @@ class AppointmentResource extends Resource
                 Tables\Filters\SelectFilter::make('service_id')
                     ->label('Serviço')
                     ->options(Service::all()->pluck('name', 'id')),
+                    
+                Tables\Filters\Filter::make('client_name')
+                    ->label('Nome do Cliente')
+                    ->form([
+                        Forms\Components\TextInput::make('client_name')
+                            ->label('Nome do Cliente')
+                            ->placeholder('Buscar por nome')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['client_name'],
+                                fn (Builder $query, $name): Builder => $query->where('client_name', 'like', "%{$name}%"),
+                            );
+                    }),
+                    
+                Tables\Filters\Filter::make('client_phone')
+                    ->label('Telefone do Cliente')
+                    ->form([
+                        Forms\Components\TextInput::make('client_phone')
+                            ->label('Telefone do Cliente')
+                            ->placeholder('Buscar por telefone')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['client_phone'],
+                                fn (Builder $query, $phone): Builder => $query->where('client_phone', 'like', "%{$phone}%"),
+                            );
+                    }),
                     
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')

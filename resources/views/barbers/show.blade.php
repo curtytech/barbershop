@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,47 +8,87 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .swiper {
             width: 100%;
             padding: 20px 0;
         }
+
         .swiper-slide {
             width: auto;
         }
+
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 3px #999;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-float:hover {
+            background-color: #128C7E;
+            transform: scale(1.1);
+        }
     </style>
 </head>
+
 <body class="bg-gray-100">
     <!-- Banner -->
     <div class="w-full h-64 relative">
-        @if($barber->image_banner)
-            <img src="{{ asset('storage/' . $barber->image_banner) }}" alt="Banner" class="w-full h-full object-cover">
+        @if ($barber->image_banner)
+            <img src="{{ asset('storage/' . $barber->image_banner) }}" alt="Banner"
+                class="w-full h-full object-cover">
         @else
             <div class="w-full h-full bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center">
-                <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
                 </svg>
             </div>
         @endif
         <!-- Logo/Foto do Barbeiro -->
         <div class="absolute -bottom-16 left-8">
-            @if($barber->image_logo)
-             <div class="flex flex-row justify-center">
-                <div class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center">
-                                   <img src="{{ asset('storage/' . $barber->image_logo) }}" alt="{{ $barber->name }}" class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
+            @if ($barber->image_logo)
+                <div class="flex flex-row justify-center">
+                    <div
+                        class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center">
+                        <img src="{{ asset('storage/' . $barber->image_logo) }}" alt="{{ $barber->name }}"
+                            class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
 
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $barber->name }}</p>
+                        <button id="openModalBtn" class="bg-green-500 ml-5 text-white px-4 py-2 rounded-full mt-2"> <i class="fas fa-calendar-plus mr-1"></i> Agendar</button>
+                    </div>
                 </div>
-                <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $barber->name }}</p>
-            </div>
             @else
-            <div class="flex flex-row justify-center">
-                <div class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center">
-                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
+                <div class="flex flex-row justify-center">
+                    <div
+                        class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $barber->name }}</p>
                 </div>
-                <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $barber->name }}</p>
-            </div>
             @endif
         </div>
     </div>
@@ -59,16 +100,19 @@
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Serviços</h2>
             <div class="swiper servicesSwiper">
                 <div class="swiper-wrapper">
-                    @foreach($barber->services as $service)
+                    @foreach ($barber->services as $service)
                         <div class="swiper-slide w-72">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full">
                                 <div class="w-full h-48">
-                                    @if($service->image)
-                                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}" class="w-full h-full object-cover">
+                                    @if ($service->image)
+                                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}"
+                                            class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                             </svg>
                                         </div>
                                     @endif
@@ -88,7 +132,96 @@
             </div>
         </div>
     </div>
+
+    <!-- Botão Flutuante WhatsApp -->
+    <a href="https://wa.me/{{ $barber->phone ?? '5511999999999' }}" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <!-- Modal de Agendamento -->
+    <div id="appointmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Agendar com {{ $barber->name }}</h3>
+                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Formulário de Agendamento -->
+                <form id="appointmentForm">
+                    <!-- Campo oculto para o ID do barbeiro -->
+                    <input type="hidden" id="barber_id" name="barber_id" value="{{ $barber->id }}">
+                    
+                    <!-- Seleção de Serviço -->
+                    <div class="mb-4">
+                        <label for="service_id" class="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
+                        <select id="service_id" name="service_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">Selecione um serviço</option>
+                            @foreach ($barber->services as $service)
+                                <option value="{{ $service->id }}">{{ $service->name }} - {{ $service->formatted_price }}</option>
+                            @endforeach
+                        </select>
+                        <div id="service_id_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um serviço.</div>
+                    </div>
+                    
+                    <!-- Seleção de Data -->
+                    <div class="mb-4">
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input type="date" id="date" name="date" min="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <div id="date_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione uma data.</div>
+                    </div>
+                    
+                    <!-- Seleção de Horário -->
+                    <div class="mb-4">
+                        <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                        <input type="hidden" id="time" name="time" value="">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="09:00">09:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="10:00">10:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="11:00">11:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="13:00">13:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="14:00">14:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="15:00">15:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="16:00">16:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="17:00">17:00</button>
+                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="18:00">18:00</button>
+                        </div>
+                        <div id="time_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um horário.</div>
+                    </div>
+                    
+                    <!-- Informações de Contato -->
+                    <div class="mb-4">
+                        <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">Seu Nome</label>
+                        <input type="text" id="client_name" name="client_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <div id="client_name_error" class="text-red-500 text-sm mt-1 hidden">Por favor, informe seu nome.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" id="client_phone" name="client_phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <div id="client_phone_error" class="text-red-500 text-sm mt-1 hidden">Por favor, informe seu telefone.</div>
+                    </div>
+                    
+                    <!-- Botão de Confirmação -->
+                    <button type="button" id="confirmAppointment" class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200">
+                        Confirmar Agendamento
+                    </button>
+                    
+                    <!-- Mensagem de sucesso/erro -->
+                    <div id="appointment_success" class="mt-4 p-3 bg-green-100 text-green-700 rounded-md hidden">
+                        Agendamento realizado com sucesso!
+                    </div>
+                    <div id="appointment_error" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden">
+                        Ocorreu um erro ao realizar o agendamento. Tente novamente.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Inicialização do Swiper
         new Swiper('.servicesSwiper', {
             slidesPerView: 'auto',
             spaceBetween: 24,
@@ -109,6 +242,166 @@
                 }
             }
         });
+        
+        // Controle do Modal
+        const modal = document.getElementById('appointmentModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const confirmBtn = document.getElementById('confirmAppointment');
+        const timeSlots = document.querySelectorAll('.time-slot');
+        
+        // Abrir Modal
+        openModalBtn.addEventListener('click', function() {
+            modal.classList.remove('hidden');
+        });
+        
+        // Fechar Modal
+        closeModalBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+        
+        // Fechar Modal ao clicar fora
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+        
+        // Seleção de horário
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', function() {
+                // Remover seleção anterior
+                timeSlots.forEach(s => s.classList.remove('bg-green-500', 'text-white'));
+                // Adicionar seleção atual
+                this.classList.add('bg-green-500', 'text-white');
+                // Atualizar o campo oculto com o horário selecionado
+                document.getElementById('time').value = this.getAttribute('data-time');
+            });
+        });
+        
+        // Função para mostrar mensagens de erro
+        function showError(fieldId, show) {
+            const errorElement = document.getElementById(fieldId + '_error');
+            if (show) {
+                errorElement.classList.remove('hidden');
+            } else {
+                errorElement.classList.add('hidden');
+            }
+        }
+        
+        // Função para validar o formulário
+        function validateForm() {
+            const serviceId = document.getElementById('service_id').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const clientName = document.getElementById('client_name').value;
+            const clientPhone = document.getElementById('client_phone').value;
+            
+            let isValid = true;
+            
+            // Validar serviço
+            if (!serviceId) {
+                showError('service_id', true);
+                isValid = false;
+            } else {
+                showError('service_id', false);
+            }
+            
+            // Validar data
+            if (!date) {
+                showError('date', true);
+                isValid = false;
+            } else {
+                showError('date', false);
+            }
+            
+            // Validar horário
+            if (!time) {
+                showError('time', true);
+                isValid = false;
+            } else {
+                showError('time', false);
+            }
+            
+            // Validar nome
+            if (!clientName) {
+                showError('client_name', true);
+                isValid = false;
+            } else {
+                showError('client_name', false);
+            }
+            
+            // Validar telefone
+            if (!clientPhone) {
+                showError('client_phone', true);
+                isValid = false;
+            } else {
+                showError('client_phone', false);
+            }
+            
+            return isValid;
+        }
+        
+        // Confirmação de agendamento
+        confirmBtn.addEventListener('click', function() {
+            // Esconder mensagens de sucesso/erro anteriores
+            document.getElementById('appointment_success').classList.add('hidden');
+            document.getElementById('appointment_error').classList.add('hidden');
+            
+            // Validar formulário
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Preparar dados para envio
+            const formData = new FormData(document.getElementById('appointmentForm'));
+            
+            // Criar objeto com os dados do formulário
+            const appointmentData = {
+                barber_id: document.getElementById('barber_id').value,
+                service_id: document.getElementById('service_id').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                client_name: document.getElementById('client_name').value,
+                client_phone: document.getElementById('client_phone').value
+            };
+            
+            // Enviar dados para o servidor via fetch API
+            fetch('{{ route("appointment.store") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(appointmentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensagem de sucesso
+                    document.getElementById('appointment_success').classList.remove('hidden');
+                    
+                    // Limpar formulário
+                    document.getElementById('appointmentForm').reset();
+                    timeSlots.forEach(s => s.classList.remove('bg-green-500', 'text-white'));
+                    
+                    // Fechar modal após 3 segundos
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    // Mostrar mensagem de erro
+                    document.getElementById('appointment_error').classList.remove('hidden');
+                    document.getElementById('appointment_error').textContent = data.message || 'Ocorreu um erro ao realizar o agendamento. Tente novamente.';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                document.getElementById('appointment_error').classList.remove('hidden');
+            });
+        });
     </script>
 </body>
+
 </html>

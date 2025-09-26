@@ -8,4 +8,5 @@ Route::get('/', function () {
 });
 
 Route::get('/{slug}', [BarberController::class, 'show'])->name('barber.show');
+Route::post('/appointment/store', [BarberController::class, 'storeAppointment'])->name('appointment.store');
 
