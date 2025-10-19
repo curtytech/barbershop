@@ -105,7 +105,12 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full">
                                 <div class="w-full h-48">
                                     @if ($service->image)
-                                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}"
+                                        @php
+                                            $serviceImageSrc = filter_var($service->image, FILTER_VALIDATE_URL)
+                                                ? $service->image
+                                                : asset('storage/' . $service->image);
+                                        @endphp
+                                        <img src="{{ $serviceImageSrc }}" alt="{{ $service->name }}"
                                             class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -181,17 +186,8 @@
                     <div class="mb-4">
                         <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Horário</label>
                         <input type="hidden" id="time" name="time" value="">
-                        <div class="grid grid-cols-3 gap-2">
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="09:00">09:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="10:00">10:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="11:00">11:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="13:00">13:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="14:00">14:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="15:00">15:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="16:00">16:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="17:00">17:00</button>
-                            <button type="button" class="time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100" data-time="18:00">18:00</button>
-                        </div>
+                        <div id="time_slots" class="grid grid-cols-3 gap-2"></div>
+                        <div id="no_times" class="text-gray-600 text-sm mt-2 hidden">Nenhum horário disponível para a data selecionada.</div>
                         <div id="time_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um horário.</div>
                     </div>
                     
@@ -254,42 +250,104 @@
         const openModalBtnServices = document.getElementById('openModalBtnServices');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const confirmBtn = document.getElementById('confirmAppointment');
-        const timeSlots = document.querySelectorAll('.time-slot');
-        
+        const serviceSelect = document.getElementById('service_id');
+        const dateInput = document.getElementById('date');
+        const timeInput = document.getElementById('time');
+        const timeSlotsContainer = document.getElementById('time_slots');
+        const noTimes = document.getElementById('no_times');
+    
+        function setConfirmState(enabled) {
+            if (enabled) {
+                confirmBtn.disabled = false;
+                confirmBtn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'opacity-50');
+                confirmBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                confirmBtn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-50');
+            }
+        }
+    
+        function clearTimeSelection() {
+            timeInput.value = '';
+            document.querySelectorAll('#time_slots .time-slot').forEach(s => s.classList.remove('bg-green-500', 'text-white'));
+        }
+    
+        function handleTimeSlotClick(el) {
+            document.querySelectorAll('#time_slots .time-slot').forEach(s => s.classList.remove('bg-green-500', 'text-white'));
+            el.classList.add('bg-green-500', 'text-white');
+            timeInput.value = el.getAttribute('data-time');
+            setConfirmState(true);
+        }
+    
+        function renderTimeSlots(times) {
+            timeSlotsContainer.innerHTML = '';
+            clearTimeSelection();
+    
+            if (!times || times.length === 0) {
+                noTimes.classList.remove('hidden');
+                setConfirmState(false);
+                return;
+            }
+    
+            noTimes.classList.add('hidden');
+            setConfirmState(false);
+    
+            times.forEach(t => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100';
+                btn.setAttribute('data-time', t);
+                btn.textContent = t;
+                btn.addEventListener('click', () => handleTimeSlotClick(btn));
+                timeSlotsContainer.appendChild(btn);
+            });
+        }
+    
+        function loadAvailableTimes() {
+            const serviceId = serviceSelect.value;
+            const date = dateInput.value;
+            const barberId = document.getElementById('barber_id').value;
+    
+            if (!serviceId || !date) {
+                renderTimeSlots([]);
+                return;
+            }
+    
+            fetch(`/barbers/${barberId}/availability?date=${encodeURIComponent(date)}&service_id=${encodeURIComponent(serviceId)}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                renderTimeSlots(data.available_times || []);
+            })
+            .catch(() => {
+                renderTimeSlots([]);
+            });
+        }
+    
         // Abrir Modal
         openModalBtn.addEventListener('click', function() {
             modal.classList.remove('hidden');
+            setConfirmState(false);
+            loadAvailableTimes();
         });
-        
-        // Abrir modal a partir do botão na seção de serviços
+    
         openModalBtnServices.addEventListener('click', function() {
             modal.classList.remove('hidden');
+            setConfirmState(false);
+            loadAvailableTimes();
         });
-        
+    
         // Fechar Modal
         closeModalBtn.addEventListener('click', function() {
             modal.classList.add('hidden');
         });
-        
-        // Fechar Modal ao clicar fora
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                modal.classList.add('hidden');
-            }
-        });
-        
-        // Seleção de horário
-        timeSlots.forEach(slot => {
-            slot.addEventListener('click', function() {
-                // Remover seleção anterior
-                timeSlots.forEach(s => s.classList.remove('bg-green-500', 'text-white'));
-                // Adicionar seleção atual
-                this.classList.add('bg-green-500', 'text-white');
-                // Atualizar o campo oculto com o horário selecionado
-                document.getElementById('time').value = this.getAttribute('data-time');
-            });
-        });
-        
+    
+        // Atualizar horários ao mudar serviço/data
+        serviceSelect.addEventListener('change', loadAvailableTimes);
+        dateInput.addEventListener('change', loadAvailableTimes);
+
         // Função para mostrar mensagens de erro
         function showError(fieldId, show) {
             const errorElement = document.getElementById(fieldId + '_error');
