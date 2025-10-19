@@ -261,10 +261,12 @@
                 confirmBtn.disabled = false;
                 confirmBtn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'opacity-50');
                 confirmBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                confirmBtn.textContent = 'Confirmar Agendamento';
             } else {
                 confirmBtn.disabled = true;
                 confirmBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
                 confirmBtn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-50');
+                confirmBtn.textContent = 'Agendando...';
             }
         }
     
@@ -413,19 +415,18 @@
         
         // Confirmação de agendamento
         confirmBtn.addEventListener('click', function() {
-            // Esconder mensagens de sucesso/erro anteriores
+            // Evita múltiplos envios
+            setConfirmState(false);
+    
             document.getElementById('appointment_success').classList.add('hidden');
             document.getElementById('appointment_error').classList.add('hidden');
-            
+    
             // Validar formulário
             if (!validateForm()) {
+                setConfirmState(true);
                 return;
             }
-            
-            // Preparar dados para envio
-            const formData = new FormData(document.getElementById('appointmentForm'));
-            
-            // Criar objeto com os dados do formulário
+    
             const appointmentData = {
                 barber_id: document.getElementById('barber_id').value,
                 service_id: document.getElementById('service_id').value,
@@ -434,8 +435,7 @@
                 client_name: document.getElementById('client_name').value,
                 client_phone: document.getElementById('client_phone').value
             };
-            
-            // Enviar dados para o servidor via fetch API
+    
             fetch('{{ route("appointment.store") }}', {
                 method: 'POST',
                 headers: {
@@ -445,29 +445,25 @@
                 },
                 body: JSON.stringify(appointmentData)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Mostrar mensagem de sucesso
+            .then(response => response.json().then(data => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.success) {
                     document.getElementById('appointment_success').classList.remove('hidden');
-                    
-                    // Limpar formulário
                     document.getElementById('appointmentForm').reset();
-                    timeSlots.forEach(s => s.classList.remove('bg-green-500', 'text-white'));
-                    
-                    // Fechar modal após 3 segundos
-                    setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 3000);
+                    document.getElementById('time').value = '';
+                    document.querySelectorAll('#time_slots .time-slot').forEach(s => s.classList.remove('bg-green-500', 'text-white'));
+                    setTimeout(() => { document.getElementById('appointmentModal').classList.add('hidden'); }, 2000);
                 } else {
-                    // Mostrar mensagem de erro
                     document.getElementById('appointment_error').classList.remove('hidden');
-                    document.getElementById('appointment_error').textContent = data.message || 'Ocorreu um erro ao realizar o agendamento. Tente novamente.';
+                    document.getElementById('appointment_error').textContent = data.message || 'Horário indisponível.';
                 }
             })
-            .catch(error => {
-                console.error('Erro:', error);
+            .catch(() => {
                 document.getElementById('appointment_error').classList.remove('hidden');
+            })
+            .finally(() => {
+                // Reabilita o botão para nova tentativa (se necessário)
+                setConfirmState(true);
             });
         });
     </script>
