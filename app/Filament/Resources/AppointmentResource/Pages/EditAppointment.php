@@ -38,4 +38,11 @@ class EditAppointment extends EditRecord
     {
         return 'Agendamento atualizado com sucesso!';
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Mantém barber_id em sincronia com user_id
+        $data['barber_id'] = $data['user_id'] ?? null;
+        return $data;
+    }
 }

@@ -18,8 +18,12 @@ class CreateAppointment extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Gerar uma chave única para o registro
-        $data['key'] = Str::uuid()->toString();
-        
+        $data['key'] = \Illuminate\Support\Str::uuid()->toString();
+
+        // Preenche barber_id com o mesmo profissional selecionado (user_id)
+        // Ajuste se você usar um modelo separado para Barbers.
+        $data['barber_id'] = $data['user_id'] ?? null;
+
         return $data;
     }
 
