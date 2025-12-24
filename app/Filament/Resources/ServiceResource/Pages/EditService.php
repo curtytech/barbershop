@@ -15,23 +15,26 @@ class EditService extends EditRecord
     {
         return [
             Actions\Action::make('duplicate')
-                ->label('Duplicar Serviço')
-                ->icon('heroicon-o-document-duplicate')
-                ->color('info')
-                ->action(function () {
-                    $newService = $this->record->replicate();
-                    $newService->key = $this->record->key . '-copia-' . time();
-                    $newService->name = $this->record->name . ' (Cópia)';
-                    $newService->save();
-                    
-                    Notification::make()
-                        ->title('Serviço duplicado com sucesso!')
-                        ->body("Novo serviço criado: {$newService->name}")
-                        ->success()
-                        ->send();
-                    
-                    return redirect()->to(ServiceResource::getUrl('edit', ['record' => $newService]));
-                }),
+    ->label('Duplicar Serviço')
+    ->icon('heroicon-o-document-duplicate')
+    ->color('info')
+    ->action(function () {
+        $newService = $this->record->replicate();
+
+        $newService->name = $this->record->name . ' (Cópia)';
+        $newService->save();
+
+        Notification::make()
+            ->title('Serviço duplicado com sucesso!')
+            ->body("Novo serviço criado: {$newService->name}")
+            ->success()
+            ->send();
+
+        return redirect()->to(
+            ServiceResource::getUrl('edit', ['record' => $newService])
+        );
+    }),
+
             
             Actions\DeleteAction::make()
                 ->label('Excluir'),

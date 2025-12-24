@@ -81,6 +81,9 @@ class UserResource extends Resource
                             ->required(fn (string $operation): bool => $operation === 'create')
                             ->minLength(8)
                             ->same('passwordConfirmation')
+                            ->validationMessages([
+                                'same' => 'As senhas devem ser iguais.',
+                            ])
                             ->dehydrated(fn ($state) => filled($state))
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
                         

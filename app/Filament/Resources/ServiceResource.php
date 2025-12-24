@@ -57,6 +57,9 @@ class ServiceResource extends Resource
                         Forms\Components\Textarea::make('description')
                             ->label('Descrição')
                             ->required()
+                            ->extraInputAttributes([
+                                'style' => 'resize: none;',
+                            ])
                             ->rows(4)
                             ->columnSpanFull(),
                         
@@ -65,7 +68,7 @@ class ServiceResource extends Resource
                             ->required()
                             ->numeric()
                             ->minValue(0)
-                            ->step(0.01)
+                            ->step(1)
                             ->prefix('R$')
                             ->helperText('Digite o valor em reais (ex: 50,00)')
                             ->placeholder('0,00'),

@@ -117,6 +117,9 @@ class AppointmentTimeResource extends Resource
                             ->label('Observações')
                             ->nullable()
                             ->rows(3)
+                            ->extraInputAttributes([
+                                'style' => 'resize: none;',
+                            ])
                             ->columnSpanFull(),
                     ]),
             ]);

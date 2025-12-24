@@ -56,7 +56,13 @@ class AppointmentResource extends Resource
                             ->label('Telefone do Cliente')
                             ->required()
                             ->tel()
-                            ->maxLength(20),
+                            ->maxLength(20)
+                            ->extraInputAttributes([
+                                'oninput' => "this.value = this.value
+                                    .replace(/\D/g,'')
+                                    .replace(/^(\d{2})(\d)/g,'($1) $2')
+                                    .replace(/(\d{4,5})(\d{4})$/,'$1-$2');"
+                            ]),
                     ])
                     ->columns(2),
                     
@@ -94,6 +100,9 @@ class AppointmentResource extends Resource
                             ->label('Observações')
                             ->nullable()
                             ->rows(3)
+                            ->extraInputAttributes([
+                                'style' => 'resize: none;',
+                            ])
                             ->columnSpanFull()
                             ->helperText('Informações adicionais sobre o agendamento'),
                     ]),
