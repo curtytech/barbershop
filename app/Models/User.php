@@ -51,6 +51,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the stores for the user.
+     */
+    public function stores()
+    {
+        return $this->hasMany(Store::class);
+    }
+
+    /**
      * Get the appointment times for the user.
      */
     public function appointmentTimes()

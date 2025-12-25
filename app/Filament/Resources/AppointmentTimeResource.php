@@ -214,7 +214,7 @@ class AppointmentTimeResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('user_id')
-                    ->label('Profissional')
+                    ->label('Responsável')
                     ->options(User::all()->pluck('name', 'id')),
                     
                 Tables\Filters\SelectFilter::make('type')

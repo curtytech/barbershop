@@ -69,8 +69,8 @@ class UserResource extends Resource
                             ->label('Função')
                             ->options([
                                 'admin' => 'Administrador',
-                                'barber' => 'Barbeiro',
-                                'user' => 'Usuário',
+                                'store' => 'Loja',
+                                'employee' => 'Funcionário',
                             ])
                             ->required()
                             ->default('user'),

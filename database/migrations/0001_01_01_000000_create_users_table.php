@@ -16,22 +16,20 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('image_logo')->nullable();
-            $table->string('image_banner')->nullable();
-            $table->string('slug')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role')->default('user');
+            $table->string('role')->default('store');
             $table->rememberToken();
             $table->timestamps();
         });
+
+        // roles available: admin, store, employee
 
         User::firstOrCreate(
             ['email' => 'admin@admin'],
             [
                 'name' => 'Admin',
-                'slug' => 'admin',
                 'email_verified_at' => now(),
                 'password' => Hash::make('12345678'),
                 'role' => 'admin',
@@ -39,13 +37,12 @@ return new class extends Migration
         );
 
         User::firstOrCreate(
-            ['email' => 'user@user'],
+            ['email' => 'store@store'],
             [
-                'name' => 'barber',
-                'slug' => 'barber',
+                'name' => 'store',
                 'email_verified_at' => now(),
                 'password' => Hash::make('12345678'),
-                'role' => 'barber',
+                'role' => 'store',
             ]
         );
 

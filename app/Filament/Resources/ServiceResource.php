@@ -45,8 +45,8 @@ class ServiceResource extends Resource
                             ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('key', Str::slug($state)) : null),
                         
                         Forms\Components\Select::make('user_id')
-                            ->label('Barbeiro')
-                            ->options(User::where('role', 'barber')->pluck('name', 'id'))
+                            ->label('Loja/Responsável')
+                            ->relationship('user', 'name')
                             ->required()
                             ->searchable()
                             ->preload(),

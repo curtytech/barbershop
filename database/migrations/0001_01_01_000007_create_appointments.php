@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('barber_id');
+            $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('service_id');
             $table->string('client_name');
             $table->string('client_phone');
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('barber_id')->references('id')->on('barbers');
+            $table->foreign('employee_id')->references('id')->on('employees');
             $table->foreign('service_id')->references('id')->on('services');
             $table->index(['user_id', 'date', 'appointment_time']);
             $table->index(['service_id', 'date', 'appointment_time']);

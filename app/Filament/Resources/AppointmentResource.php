@@ -34,8 +34,15 @@ class AppointmentResource extends Resource
                 Forms\Components\Section::make('Informações do Agendamento')
                     ->schema([
                         Forms\Components\Select::make('user_id')
+                            ->label('Responsável/Loja')
+                            ->relationship('user', 'name')
+                            ->required()
+                            ->searchable()
+                            ->live(),
+
+                        Forms\Components\Select::make('employee_id')
                             ->label('Profissional')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('employee', 'name')
                             ->required()
                             ->searchable()
                             ->live(),
@@ -210,9 +217,13 @@ class AppointmentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('user_id')
+                Tables\Filters\SelectFilter::make('employee_id')
                     ->label('Profissional')
-                    ->options(User::all()->pluck('name', 'id')),
+                    ->relationship('employee', 'name'),
+
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->label('Responsável')
+                    ->relationship('user', 'name'),
                     
                 Tables\Filters\SelectFilter::make('service_id')
                     ->label('Serviço')
