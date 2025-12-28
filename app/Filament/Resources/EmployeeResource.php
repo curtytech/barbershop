@@ -18,9 +18,13 @@ class EmployeeResource extends Resource
     protected static ?string $model = Employee::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
+    protected static ?string $navigationLabel = 'Funcionários';
+    
+    
 
     public static function form(Form $form): Form
-    {
+{
         return $form
             ->schema([
                 Forms\Components\Select::make('store_id')

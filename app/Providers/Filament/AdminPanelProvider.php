@@ -55,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->navigationItems(array_filter([
-                \Filament\Navigation\NavigationItem::make('Home')
+                \Filament\Navigation\NavigationItem::make('Início')
                     ->url('/')
                     ->icon('heroicon-o-home')
                     ->sort(-1) // Ensures it's the first item

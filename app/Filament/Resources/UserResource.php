@@ -46,14 +46,7 @@ class UserResource extends Resource
                                 }
                                 $set('slug', Str::slug($state));
                             }),
-                        
-                        Forms\Components\TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(User::class, 'slug', ignoreRecord: true)
-                            ->rules(['alpha_dash'])
-                            ->helperText('Usado para URLs amigáveis'),
+
                         
                         Forms\Components\TextInput::make('email')
                             ->label('E-mail')
@@ -98,37 +91,6 @@ class UserResource extends Resource
                             ->label('E-mail Verificado em')
                             ->helperText('Deixe vazio se o e-mail não foi verificado'),
                     ])->columns(2),
-                
-                Forms\Components\Section::make('Imagens')
-                    ->schema([
-                        FileUpload::make('image_logo')
-                            ->label('Logo')
-                            ->image()
-                            ->directory('users/logos')
-                            ->visibility('public')
-                            ->imageEditor()
-                            ->imageEditorAspectRatios([
-                                '1:1',
-                                '4:3',
-                                '16:9',
-                            ])
-                            ->maxSize(2048)
-                            ->helperText('Tamanho máximo: 2MB. Formatos aceitos: JPG, PNG, GIF'),
-                        
-                        FileUpload::make('image_banner')
-                            ->label('Banner')
-                            ->image()
-                            ->directory('users/banners')
-                            ->visibility('public')
-                            ->imageEditor()
-                            ->imageEditorAspectRatios([
-                                '16:9',
-                                '21:9',
-                                '3:1',
-                            ])
-                            ->maxSize(5120)
-                             ->helperText('Tamanho máximo: 5MB. Recomendado: formato panorâmico'),
-                     ])->columns(2),
             ]);
     }
 
