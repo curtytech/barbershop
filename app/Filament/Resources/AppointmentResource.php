@@ -33,20 +33,30 @@ class AppointmentResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informações do Agendamento')
                     ->schema([
-                        Forms\Components\Select::make('user_id')
-                            ->label('Responsável/Loja')
-                            ->relationship('user', 'name')
-                            ->required()
+                        Forms\Components\Select::make('store_id')
+                            ->label('Responsável / Loja')
+                            ->options(\App\Models\Store::pluck('name', 'id'))
+                            ->required()  // mantém required
                             ->searchable()
-                            ->live(),
+                            ->reactive()
+                            ->afterStateUpdated(fn ($set) => $set('employee_id', null)),
 
-                        Forms\Components\Select::make('employee_id')
+                            
+
+                       Forms\Components\Select::make('employee_id')
                             ->label('Profissional')
-                            ->relationship('employee', 'name')
+                            ->options(function ($get) {
+                                if (!$get('store_id')) {
+                                    return [];
+                                }
+
+                                return \App\Models\Employee::where('store_id', $get('store_id'))
+                                    ->pluck('name', 'id');
+                            })
                             ->required()
                             ->searchable()
-                            ->live(),
-                            
+                            ->disabled(fn ($get) => !$get('store_id')),
+
                         Forms\Components\Select::make('service_id')
                             ->label('Serviço')
                             ->options(Service::all()->pluck('name', 'id'))
@@ -126,7 +136,7 @@ class AppointmentResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                     
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('employee.name')
                     ->label('Profissional')
                     ->sortable()
                     ->searchable(),

@@ -21,36 +21,60 @@ class EmployeeResource extends Resource
     
     protected static ?string $navigationLabel = 'Funcionários';
     
-    
+      public static function getLabel(): string
+    {
+        return 'Funcionário';
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return 'Funcionários';
+    }
 
     public static function form(Form $form): Form
 {
         return $form
             ->schema([
                 Forms\Components\Select::make('store_id')
+                    ->label('Loja')
                     ->relationship('store', 'name')
                     ->required(),
+                Forms\Components\Select::make('user_id')
+                    ->label('Usuário')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 Forms\Components\TextInput::make('name')
+                    ->label('Nome')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('celphone')
+                    ->label('Celular')
+                    ->tel()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('position')
+                    ->label('Cargo')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
+                    ->label('Descrição')
+                    ->rows(4)           
+                    ->extraInputAttributes([
+                        'style' => 'resize: none;',
+                    ])
+                    ->autosize(false)
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('phone')
-                    ->tel()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('celphone')
-                    ->tel()
-                    ->maxLength(255),
+               
                 Forms\Components\FileUpload::make('image_logo')
+                    ->label('logo')
                     ->image(),
                 Forms\Components\FileUpload::make('image_banner')
+                    ->label('Banner')
                     ->image(),
                 Forms\Components\TextInput::make('slug')
                     ->required()

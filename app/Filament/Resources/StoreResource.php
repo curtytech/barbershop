@@ -21,14 +21,26 @@ class StoreResource extends Resource
 
     protected static ?string $navigationLabel = 'Lojas';
 
+     public static function getLabel(): string
+    {
+        return 'Loja';
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return 'Lojas';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
+                    ->label('Usuário')
                     ->relationship('user', 'name')
                     ->required(),
                 Forms\Components\TextInput::make('name')
+                    ->label('Nome')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('slug')
@@ -39,28 +51,38 @@ class StoreResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('celphone')
+                    ->label('Celular')
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image_logo')
+                    ->label('Logo')
                     ->image(),
                 Forms\Components\FileUpload::make('image_banner')
+                    ->label('Banner')
                     ->image(),
-                Forms\Components\ColorPicker::make('color_primary'),
-                Forms\Components\ColorPicker::make('color_secondary'),
-                Forms\Components\TextInput::make('zipcode')
-                    ->maxLength(255),
+                Forms\Components\ColorPicker::make('color_primary') ->label('Cor Primária'), 
+                Forms\Components\ColorPicker::make('color_secondary') ->label('Cor Secundária'),
+                Forms\Components\TextInput::make('zipcode') 
+                    ->maxLength(255)
+                    ->label('CEP'),
                 Forms\Components\TextInput::make('address')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Endereço'),
                 Forms\Components\TextInput::make('number')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Número'),
                 Forms\Components\TextInput::make('neighborhood')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Bairro'),
                 Forms\Components\TextInput::make('city')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Cidade'),
                 Forms\Components\TextInput::make('state')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Estado'),
                 Forms\Components\TextInput::make('complement')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Complemento'),
                 Forms\Components\TextInput::make('instagram')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('facebook')

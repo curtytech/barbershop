@@ -38,7 +38,7 @@ class ViewAppointment extends ViewRecord
                         TextEntry::make('key')
                             ->label('ID do Agendamento'),
                             
-                        TextEntry::make('user.name')
+                        TextEntry::make('employee.name')
                             ->label('Profissional'),
                             
                         TextEntry::make('service.name')

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AppointmentResource\Pages;
 
 use App\Filament\Resources\AppointmentResource;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class CreateAppointment extends CreateRecord
@@ -17,12 +18,11 @@ class CreateAppointment extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Gerar uma chave única para o registro
-        $data['key'] = \Illuminate\Support\Str::uuid()->toString();
+        // Usuário logado (OBRIGATÓRIO)
+        $data['user_id'] = Auth::id();
 
-        // Preenche barber_id com o mesmo profissional selecionado (user_id)
-        // Ajuste se você usar um modelo separado para Barbers.
-        $data['barber_id'] = $data['user_id'] ?? null;
+        // Chave única (se existir essa coluna no banco)
+        $data['key'] = Str::uuid()->toString();
 
         return $data;
     }

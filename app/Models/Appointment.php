@@ -13,7 +13,7 @@ class Appointment extends Model
 
     protected $fillable = [
         'user_id',
-        'barber_id',
+        'employee_id',
         'service_id',
         'client_name',
         'client_phone',
@@ -147,18 +147,23 @@ class Appointment extends Model
         return $days[$this->date->format('l')] ?? $this->date->format('l');
     }
 
-    public function getStatusAttribute(): string
-    {
+    public function getComputedStatusAttribute(): string
+    {   
         $now = now();
-        $appointmentDateTime = Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->appointment_time->format('H:i:s'));
-        
+
+        $appointmentDateTime = Carbon::parse(
+            $this->date->format('Y-m-d') . ' ' . $this->appointment_time->format('H:i:s')
+        );
+
         if ($appointmentDateTime->isPast()) {
             return 'Concluído';
-        } elseif ($appointmentDateTime->isToday() && $appointmentDateTime->diffInHours($now) <= 2) {
-            return 'Próximo';
-        } else {
-            return 'Agendado';
         }
+
+        if ($appointmentDateTime->isToday() && $appointmentDateTime->diffInHours($now) <= 2) {
+            return 'Próximo';
+        }
+
+        return 'Agendado';
     }
 
     public function getStatusColorAttribute(): string
