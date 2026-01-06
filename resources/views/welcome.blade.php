@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-100 font-sans">
     <!-- Header/Navbar -->
     <header class="bg-black text-white shadow-lg">
@@ -19,8 +21,9 @@
             <nav class="hidden md:flex space-x-8">
                 <a href="#" class="hover:text-amber-400 transition">Home</a>
                 <a href="#" class="hover:text-amber-400 transition">Serviços</a>
-                <a href="#" class="hover:text-amber-400 transition">Galeria</a>
+                <a href="#stores" class="hover:text-amber-400 transition">Lojas</a>
                 <a href="#" class="hover:text-amber-400 transition">Contato</a>
+                <a href="/admin" class="hover:text-amber-400 transition">Área do Restrita</a>
             </nav>
             <div class="md:hidden">
                 <button class="text-white focus:outline-none">
@@ -86,6 +89,25 @@
         </div>
     </section>
 
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12" id="stores">Nossas Lojas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                @foreach($users as $user)
+                <a href="{{ route('barber.show', $user->stores[0]->slug) }}" target="_blank" rel="noopener noreferrer">
+                    <div class="bg-gray-100 rounded-lg p-6 text-center hover:shadow-lg transition">
+                        <div class="bg-amber-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-cut text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">{{ $user->name }}</h3>
+                        <p class="text-gray-600">{{ $user->email }}</p>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="bg-black text-white py-12">
         <div class="container mx-auto px-4">
@@ -122,4 +144,5 @@
         </div>
     </footer>
 </body>
+
 </html>

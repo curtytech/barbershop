@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $barber->name }}</title>
+    <title>{{ $store->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -48,8 +48,8 @@
     <!-- Conteúdo específico do barbeiro -->
     <!-- Banner -->
     <div class="w-full h-64 relative">
-        @if ($barber->image_banner)
-            <img src="{{ asset('storage/' . $barber->image_banner) }}" alt="Banner"
+        @if ($store->image_banner)
+            <img src="{{ asset('storage/' . $store->image_banner) }}" alt="Banner"
                 class="w-full h-full object-cover">
         @else
             <div class="w-full h-full bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center">
@@ -63,16 +63,16 @@
         @endif
         <!-- Logo/Foto do Barbeiro -->
         <div class="absolute -bottom-16 left-8">
-            @if ($barber->image_logo)
+            @if ($store->image_logo)
                 <div class="flex flex-row justify-center">
                     <div
                         class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center">
-                        <img src="{{ asset('storage/' . $barber->image_logo) }}" alt="{{ $barber->name }}"
+                        <img src="{{ asset('storage/' . $store->image_logo) }}" alt="{{ $store->name }}"
                             class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
 
                     </div>
                     <div class="flex flex-col justify-center">
-                        <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $barber->name }}</p>
+                        <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $store->name }}</p>
                         <button id="openModalBtn" class="bg-green-500 ml-5 text-white px-4 py-2 rounded-full mt-2"> <i class="fas fa-calendar-plus mr-1"></i> Agendar</button>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                     </div>
-                    <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $barber->name }}</p>
+                    <p class="text-gray-200 mt-3 ml-5 text-xl font-bold">{{ $store->name }}</p>
                 </div>
             @endif
         </div>
@@ -143,15 +143,15 @@
     </div>
 
     <!-- Botão Flutuante WhatsApp -->
-    <a href="https://wa.me/{{ $barber->phone ?? '5511999999999' }}" class="whatsapp-float" target="_blank">
-        <i class="fab fa-whatsapp"></i>
+    <a href="https://wa.me/{{ $store->whatsapp ?? $store->celphone ?? '5511999999999' }}" target="_blank" class="fixed bottom-16 right-16 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 ease-in-out">
+        <i class="fab fa-whatsapp text-4xl "></i>
     </a>
     <!-- Modal de Agendamento -->
     <div id="appointmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-gray-800">Agendar com {{ $barber->name }}</h3>
+                    <h3 class="text-xl font-semibold text-gray-800">Agendar com {{ $store->name }}</h3>
                     <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-times"></i>
                     </button>
@@ -190,6 +190,18 @@
                         <div id="time_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um horário.</div>
                     </div>
                     
+                    <!-- Informações de Contato -->
+                    <div class="mb-4">
+                        <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
+                          <select id="employee_id" name="employee_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">Selecione um funcionário</option>
+                            @foreach ($employees as $employee)
+                                <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                            @endforeach
+                        </select>
+                        <div id="employee_id_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um funcionário.</div>
+                    </div>
+
                     <!-- Informações de Contato -->
                     <div class="mb-4">
                         <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">Seu Nome</label>
@@ -251,6 +263,7 @@
         const confirmBtn = document.getElementById('confirmAppointment');
         const serviceSelect = document.getElementById('service_id');
         const dateInput = document.getElementById('date');
+        const employeeIdInput = document.getElementById('employee_id');
         const timeInput = document.getElementById('time');
         const timeSlotsContainer = document.getElementById('time_slots');
         const noTimes = document.getElementById('no_times');
@@ -362,12 +375,21 @@
         // Função para validar o formulário
         function validateForm() {
             const serviceId = document.getElementById('service_id').value;
+            const employeeId = document.getElementById('employee_id').value;
             const date = document.getElementById('date').value;
             const time = document.getElementById('time').value;
             const clientName = document.getElementById('client_name').value;
             const clientPhone = document.getElementById('client_phone').value;
             
             let isValid = true;
+            
+            // Validar funcionário
+            if (!employeeId) {
+                showError('employee_id', true);
+                isValid = false;
+            } else {
+                showError('employee_id', false);
+            }
             
             // Validar serviço
             if (!serviceId) {

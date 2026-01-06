@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Store;
 use App\Models\User;
 use App\Models\Appointment;
 use App\Models\AppointmentTime;
@@ -12,19 +13,21 @@ class BarberController extends Controller
 {
     public function show($slug)
     {
-        $barber = User::where('slug', $slug)
-            ->where('role', 'barber')
-            ->with([
+        $store = Store::where('slug', $slug)->firstOrFail();
+        $employees = $store->employees;
+        
+        $barber = $store->user;
+        
+        $barber->load([
                 'services',
                 'activeAppointmentTimes',
                 'availableAppointmentTimes',
                 'breakTimes',
                 'upcomingAppointments.service',
                 'todayAppointments.service'
-            ])
-            ->firstOrFail();
-
-        return view('barbers.show', compact('barber'));
+            ]);
+        
+        return view('barbers.show', compact('barber', 'store', 'employees'));
     }
     
     public function storeAppointment(Request $request)
