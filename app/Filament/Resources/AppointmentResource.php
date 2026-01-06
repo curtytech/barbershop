@@ -36,12 +36,10 @@ class AppointmentResource extends Resource
                         Forms\Components\Select::make('store_id')
                             ->label('Responsável / Loja')
                             ->options(\App\Models\Store::pluck('name', 'id'))
-                            ->required()  // mantém required
+                            ->required() 
                             ->searchable()
                             ->reactive()
                             ->afterStateUpdated(fn ($set) => $set('employee_id', null)),
-
-                            
 
                        Forms\Components\Select::make('employee_id')
                             ->label('Profissional')
@@ -91,12 +89,42 @@ class AppointmentResource extends Resource
                             ->minDate(now())
                             ->live(),
                             
-                        Forms\Components\TimePicker::make('appointment_time')
+                         Forms\Components\Select::make('appointment_time')
                             ->label('Horário')
                             ->required()
-                            ->seconds(false)
-                            ->minutesStep(15)
-                            ->helperText('Horários disponíveis de acordo com a agenda do profissional'),
+                            ->options(function (callable $get) {
+
+                                if (! $get('employee_id') || ! $get('date')) {
+                                    return [];
+                                }
+
+                                $times = [];
+
+                                // Exemplo: 08:00 às 18:00
+                                $start = Carbon::createFromTime(8, 0);
+                                $end   = Carbon::createFromTime(18, 0);
+
+                                while ($start < $end) {
+                                    $time = $start->format('H:i');
+
+                                    if (
+                                        \App\Services\AppointmentAvailabilityService::isAvailable(
+                                            $get('employee_id'),
+                                            $get('date'),
+                                            $time
+                                        )
+                                    ) {
+                                        $times[$time] = $time;
+                                    }
+
+                                    $start->addMinutes(15);
+                                }
+
+                                return $times;
+                            })
+                            ->disabled(fn ($get) => ! $get('employee_id') || ! $get('date'))
+                            ->helperText('Horários disponíveis já com intervalo de 1h aplicado'),
+
                     ])
                     ->columns(2),
                     
