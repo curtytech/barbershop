@@ -17,6 +17,7 @@
         <div class="container mx-auto px-4 py-6 flex justify-between items-center">
             <div class="flex items-center">
                 <h1 class="text-2xl font-bold">Barbershop</h1>
+                <img src="../../favicon.ico" class="mb-1.5 ml-3 h-20 w-auto object-contain" alt="Logo">
             </div>
             <nav class="hidden md:flex space-x-8">
                 <a href="#" class="hover:text-amber-400 transition">Home</a>
