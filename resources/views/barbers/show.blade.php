@@ -99,8 +99,12 @@
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Serviços</h2>
             <div class="swiper servicesSwiper">
                 <div class="swiper-wrapper">
-                    @foreach ($barber->services as $service)
+                    @foreach ($employees as $employee)
+                        @foreach ($employee->services as $service)
                         <div class="swiper-slide w-72">
+                            <div class="absolute top-2 right-2 z-10 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                                {{ $employee->name }}
+                            </div>
                             <div class="bg-white rounded-lg shadow-md overflow-hidden h-full">
                                 <div class="w-full h-48">
                                     @if ($service->image)
@@ -128,6 +132,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endforeach
                     @endforeach
                 </div>
                 <div class="swiper-pagination"></div>
@@ -159,16 +164,20 @@
                 
                 <!-- Formulário de Agendamento -->
                 <form id="appointmentForm">
-                    <!-- Campo oculto para o ID do barbeiro -->
-                    <input type="hidden" id="barber_id" name="barber_id" value="{{ $barber->id }}">
+                    <!-- Campo oculto para o ID do barbeiro (Removido) -->
+                    <!-- <input type="hidden" id="barber_id" name="barber_id" value="{{ $store->id }}"> -->
                     
                     <!-- Seleção de Serviço -->
                     <div class="mb-4">
                         <label for="service_id" class="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
                         <select id="service_id" name="service_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="">Selecione um serviço</option>
-                            @foreach ($barber->services as $service)
-                                <option value="{{ $service->id }}">{{ $service->name }} - {{ $service->formatted_price }}</option>
+                            @foreach ($employees as $employee)
+                                <optgroup label="{{ $employee->name }}">
+                                    @foreach ($employee->services as $service)
+                                        <option value="{{ $service->id }}" data-employee-id="{{ $employee->id }}">{{ $service->name }} - {{ $service->formatted_price }}</option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
                         <div id="service_id_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um serviço.</div>
@@ -191,16 +200,7 @@
                     </div>
                     
                     <!-- Informações de Contato -->
-                    <div class="mb-4">
-                        <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
-                          <select id="employee_id" name="employee_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="">Selecione um funcionário</option>
-                            @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                            @endforeach
-                        </select>
-                        <div id="employee_id_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um funcionário.</div>
-                    </div>
+                    <input type="hidden" id="employee_id" name="employee_id">
 
                     <!-- Informações de Contato -->
                     <div class="mb-4">
@@ -321,14 +321,14 @@
         function loadAvailableTimes() {
             const serviceId = serviceSelect.value;
             const date = dateInput.value;
-            const barberId = document.getElementById('barber_id').value;
+            // const barberId = document.getElementById('barber_id').value;
     
             if (!serviceId || !date) {
                 renderTimeSlots([]);
                 return;
             }
     
-            fetch(`/barbers/${barberId}/availability?date=${encodeURIComponent(date)}&service_id=${encodeURIComponent(serviceId)}`, {
+            fetch(`/availability?date=${encodeURIComponent(date)}&service_id=${encodeURIComponent(serviceId)}`, {
                 headers: { 'Accept': 'application/json' }
             })
             .then(resp => resp.json())
@@ -359,7 +359,12 @@
         });
     
         // Atualizar horários ao mudar serviço/data
-        serviceSelect.addEventListener('change', loadAvailableTimes);
+        serviceSelect.addEventListener('change', function() {
+            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+            const employeeId = selectedOption.getAttribute('data-employee-id');
+            document.getElementById('employee_id').value = employeeId || '';
+            loadAvailableTimes();
+        });
         dateInput.addEventListener('change', loadAvailableTimes);
 
         // Função para mostrar mensagens de erro

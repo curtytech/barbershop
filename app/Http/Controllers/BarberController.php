@@ -14,26 +14,15 @@ class BarberController extends Controller
     public function show($slug)
     {
         $store = Store::where('slug', $slug)->firstOrFail();
-        $employees = $store->employees;
+        $employees = $store->employees()->with('services')->get();
         
-        $barber = $store->user;
-        
-        $barber->load([
-                'services',
-                'activeAppointmentTimes',
-                'availableAppointmentTimes',
-                'breakTimes',
-                'upcomingAppointments.service',
-                'todayAppointments.service'
-            ]);
-        
-        return view('barbers.show', compact('barber', 'store', 'employees'));
+        return view('barbers.show', compact('store', 'employees'));
     }
     
     public function storeAppointment(Request $request)
     {
         $validated = $request->validate([
-            'barber_id' => 'required|exists:users,id',
+            'employee_id' => 'required|exists:employees,id',
             'service_id' => 'required|exists:services,id',
             'date' => 'required|date|after_or_equal:today',
             'time' => 'required',
@@ -46,7 +35,7 @@ class BarberController extends Controller
         
         // Criar o agendamento
         $appointment = new Appointment();
-        $appointment->user_id = $validated['barber_id'];
+        $appointment->employee_id = $validated['employee_id'];
         $appointment->service_id = $validated['service_id'];
         $appointment->client_name = $validated['client_name'];
         $appointment->client_phone = $validated['client_phone'];
@@ -61,96 +50,72 @@ class BarberController extends Controller
         ]);
     }
     
-    public function availability(User $barber, Request $request)
+    public function availability(Request $request)
     {
         $date = $request->query('date');
         $serviceId = $request->query('service_id');
 
-        if (!$date) {
+        if (!$date || !$serviceId) {
             return response()->json([
                 'available_times' => [],
             ]);
         }
 
-        $dayOfWeek = strtolower(Carbon::parse($date)->englishDayOfWeek);
-
-        $availableSlots = AppointmentTime::query()
-            ->where('user_id', $barber->id)
-            ->active()
-            ->available()
-            ->where(function ($q) use ($date, $dayOfWeek) {
-                $q->where('day_of_week', $dayOfWeek)
-                  ->orWhere('specific_date', $date);
-            })
-            ->get();
-
-        $breaks = AppointmentTime::query()
-            ->where('user_id', $barber->id)
-            ->active()
-            ->breaks()
-            ->where(function ($q) use ($date, $dayOfWeek) {
-                $q->where('day_of_week', $dayOfWeek)
-                  ->orWhere('specific_date', $date);
-            })
-            ->get();
-
-        $existingAppointments = Appointment::query()
-            ->forUser($barber->id)
-            ->forDate($date)
-            ->get()
-            ->map(function ($a) {
-                if ($a->appointment_time instanceof \Carbon\Carbon) {
-                    return $a->appointment_time->format('H:i');
-                }
-                return \Carbon\Carbon::parse($a->appointment_time)->format('H:i');
-            })
-            ->toArray();
-
-        $breakIntervals = $breaks->map(function ($b) {
-            $start = $b->start_time instanceof \Carbon\Carbon ? $b->start_time->copy() : \Carbon\Carbon::parse($b->start_time);
-            $end = $b->end_time instanceof \Carbon\Carbon ? $b->end_time->copy() : \Carbon\Carbon::parse($b->end_time);
-            return [$start, $end];
-        })->toArray();
-
-        $availableTimes = [];
-
-        foreach ($availableSlots as $slot) {
-            $duration = $slot->duration ?: 30;
-
-            $start = $slot->start_time instanceof \Carbon\Carbon ? $slot->start_time->copy() : \Carbon\Carbon::parse($slot->start_time);
-            $end = $slot->end_time instanceof \Carbon\Carbon ? $slot->end_time->copy() : \Carbon\Carbon::parse($slot->end_time);
-
-            $cursor = $start->copy();
-            while ($cursor->lt($end)) {
-                $timeStr = $cursor->format('H:i');
-
-                if (in_array($timeStr, $existingAppointments, true)) {
-                    $cursor->addMinutes($duration);
-                    continue;
-                }
-
-                $inBreak = false;
-                foreach ($breakIntervals as [$bStart, $bEnd]) {
-                    if ($cursor->gte($bStart) && $cursor->lt($bEnd)) {
-                        $inBreak = true;
-                        break;
-                    }
-                }
-                if ($inBreak) {
-                    $cursor->addMinutes($duration);
-                    continue;
-                }
-
-                $availableTimes[] = $timeStr;
-                $cursor->addMinutes($duration);
-            }
+        $service = \App\Models\Service::find($serviceId);
+        if (!$service) {
+             return response()->json(['available_times' => []]);
         }
 
-        $availableTimes = array_values(array_unique($availableTimes));
-        sort($availableTimes);
+        $dayOfWeek = strtolower(Carbon::parse($date)->englishDayOfWeek);
+        
+        // Check if service is available on this day
+        if ($service->day_of_week && $service->day_of_week !== $dayOfWeek) {
+             if (!$service->specific_date || $service->specific_date->format('Y-m-d') !== $date) {
+                  return response()->json(['available_times' => []]);
+             }
+        }
+        
+        if ($service->specific_date && $service->specific_date->format('Y-m-d') !== $date) {
+             // Logic handled above or irrelevant if day_of_week matches
+        }
+
+        // Generate slots based on start_time, end_time, duration
+        $startTime = Carbon::parse($date . ' ' . $service->start_time->format('H:i:s'));
+        $endTime = Carbon::parse($date . ' ' . ($service->end_time ? $service->end_time->format('H:i:s') : '23:59:59'));
+        
+        $slots = [];
+        while ($startTime->copy()->addMinutes($service->duration)->lte($endTime)) {
+            $slotEnd = $startTime->copy()->addMinutes($service->duration);
+            $timeStr = $startTime->format('H:i');
+            
+            // Check breaks
+            $isBreak = false;
+            if ($service->break_start && $service->break_end) {
+                $breakStart = Carbon::parse($date . ' ' . $service->break_start->format('H:i:s'));
+                $breakEnd = Carbon::parse($date . ' ' . $service->break_end->format('H:i:s'));
+                
+                if ($startTime->lt($breakEnd) && $slotEnd->gt($breakStart)) {
+                    $isBreak = true;
+                }
+            }
+            
+            if (!$isBreak) {
+                // Check existing appointments
+                $exists = Appointment::where('employee_id', $service->employee_id)
+                    ->where('date', $date)
+                    ->where('appointment_time', $startTime->format('H:i:s'))
+                    ->exists();
+                    
+                if (!$exists) {
+                    $slots[] = $timeStr;
+                }
+            }
+            
+            $startTime->addMinutes($service->duration);
+        }
 
         return response()->json([
-            'available_times' => $availableTimes,
+            'available_times' => $slots,
         ]);
     }
 }

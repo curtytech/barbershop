@@ -4,8 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceResource\Pages;
 use App\Filament\Resources\ServiceResource\RelationManagers;
+use App\Models\Employee;
 use App\Models\Service;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -44,9 +44,9 @@ class ServiceResource extends Resource
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('key', Str::slug($state)) : null),
                         
-                        Forms\Components\Select::make('user_id')
-                            ->label('Loja/Responsável')
-                            ->relationship('user', 'name')
+                        Forms\Components\Select::make('employee_id')
+                            ->label('Funcionário')
+                            ->relationship('employee', 'name')
                             ->required()
                             ->searchable()
                             ->preload(),
@@ -69,7 +69,7 @@ class ServiceResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->step(1)
-                            ->prefix('R$')
+                          ->prefix('R$')
                             ->helperText('Digite o valor em reais (ex: 50,00)')
                             ->placeholder('0,00'),
                         
@@ -87,9 +87,61 @@ class ServiceResource extends Resource
                             ->maxSize(2048)
                             ->helperText('Tamanho máximo: 2MB'),
                     ])->columns(2),
+
+                Forms\Components\Section::make('Horários / Configuração')
+                    ->schema([
+                        Forms\Components\TimePicker::make('start_time')
+                            ->label('Início')
+                            ->required(),
+
+                        Forms\Components\TimePicker::make('end_time')
+                            ->label('Fim'),
+
+                        Forms\Components\Select::make('day_of_week')
+                            ->label('Dia da semana')
+                            ->options([
+                                'monday' => 'Segunda-feira',
+                                'tuesday' => 'Terça-feira',
+                                'wednesday' => 'Quarta-feira',
+                                'thursday' => 'Quinta-feira',
+                                'friday' => 'Sexta-feira',
+                                'saturday' => 'Sábado',
+                                'sunday' => 'Domingo',
+                            ])
+                            ->searchable(),
+
+                        Forms\Components\DatePicker::make('specific_date')
+                            ->label('Data específica'),
+
+                        Forms\Components\TextInput::make('duration')
+                            ->label('Duração (min)')
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(30)
+                            ->required(),
+
+                        Forms\Components\Select::make('type')
+                            ->label('Tipo')
+                            ->options([
+                                'available' => 'Disponível',
+                                'break' => 'Pausa',
+                                'lunch' => 'Almoço',
+                            ])
+                            ->default('available')
+                            ->required(),
+
+                        Forms\Components\TimePicker::make('break_start')
+                            ->label('Início da pausa'),
+
+                        Forms\Components\TimePicker::make('break_end')
+                            ->label('Fim da pausa'),
+                    ])->columns(2),
             ]);
     }
+    
 
+
+   
     public static function table(Table $table): Table
     {
         return $table
@@ -105,8 +157,8 @@ class ServiceResource extends Resource
                     ->sortable()
                     ->weight('bold'),
                 
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Barbeiro')
+                Tables\Columns\TextColumn::make('employee.name')
+                    ->label('Funcionário')
                     ->searchable()
                     ->sortable()
                     ->badge()
@@ -128,6 +180,55 @@ class ServiceResource extends Resource
                     ->formatStateUsing(fn ($state) => 'R$ ' . number_format($state, 2, ',', '.'))
                     ->sortable()
                     ->alignEnd(),
+
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'available' => 'Disponível',
+                        'break' => 'Pausa',
+                        'lunch' => 'Almoço',
+                        default => $state,
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'available' => 'success',
+                        'break' => 'warning',
+                        'lunch' => 'info',
+                        default => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('day_of_week')
+                    ->label('Dia da semana')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'monday' => 'Segunda',
+                        'tuesday' => 'Terça',
+                        'wednesday' => 'Quarta',
+                        'thursday' => 'Quinta',
+                        'friday' => 'Sexta',
+                        'saturday' => 'Sábado',
+                        'sunday' => 'Domingo',
+                        default => $state,
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('specific_date')
+                    ->label('Data específica')
+                    ->date('d/m/Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('start_time')
+                    ->label('Início')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('end_time')
+                    ->label('Fim')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('duration')
+                    ->label('Duração (min)')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Criado em')
@@ -142,9 +243,9 @@ class ServiceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('user_id')
-                    ->label('Barbeiro')
-                    ->options(User::where('role', 'barber')->pluck('name', 'id'))
+                Tables\Filters\SelectFilter::make('employee_id')
+                    ->label('Funcionário')
+                    ->options(Employee::query()->pluck('name', 'id'))
                     ->searchable()
                     ->preload(),
                 

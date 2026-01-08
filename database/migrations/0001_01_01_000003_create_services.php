@@ -13,15 +13,24 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // Corrigido: deve ser unsignedBigInteger para corresponder ao id da tabela users
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 8, 2);
             $table->string('image')->nullable();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->time('start_time');
+            $table->time('end_time')->nullable();
+            $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])->nullable();
+            $table->date('specific_date')->nullable();
+            $table->integer('duration')->default(30);
+            $table->enum('type', ['available', 'break', 'lunch'])->default('available');
+            $table->time('break_start')->nullable();
+            $table->time('break_end')->nullable();
             $table->timestamps();
+            $table->index(['employee_id', 'day_of_week']);
+            $table->index(['employee_id', 'specific_date']);
+            $table->unique(['employee_id', 'day_of_week', 'start_time'], 'unique_employee_day_time');
         });
-
     }
 
     /**

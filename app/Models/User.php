@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->hasMany(Store::class);
     }
 
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+
     /**
      * Get the appointment times for the user.
      */
@@ -74,15 +79,15 @@ class User extends Authenticatable
         return $this->hasMany(AppointmentTime::class)->where('is_active', true);
     }
 
-    /**
-     * Get available appointment times for the user.
-     */
-    public function availableAppointmentTimes()
-    {
-        return $this->hasMany(AppointmentTime::class)
-            ->where('type', 'available')
-            ->where('is_active', true);
-    }
+    // /**
+    //  * Get available appointment times for the user.
+    //  */
+    // public function availableAppointmentTimes()
+    // {
+    //     return $this->hasMany(AppointmentTime::class)
+    //         ->where('type', 'available')
+    //         ->where('is_active', true);
+    // }
 
     /**
      * Get break times for the user.
@@ -123,11 +128,5 @@ class User extends Authenticatable
             ->orderBy('appointment_time');
     }
 
-    /**
-     * Get the services for the user.
-     */
-    public function services()
-    {
-        return $this->hasMany(Service::class);
-    }
+
 }

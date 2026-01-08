@@ -11,20 +11,34 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'employee_id',
         'name',
         'description',
         'price',
         'image',
+        'start_time',
+        'end_time',
+        'day_of_week',
+        'specific_date',
+        'duration',
+        'type',
+        'break_start',
+        'break_end',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+        'specific_date' => 'date',
+        'duration' => 'integer',
+        'break_start' => 'datetime:H:i',
+        'break_end' => 'datetime:H:i',
     ];
 
-    public function user(): BelongsTo
+    public function employee(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Employee::class);
     }
 
     public function getFormattedPriceAttribute(): string

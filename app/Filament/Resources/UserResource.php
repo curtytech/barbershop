@@ -109,12 +109,6 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('image_logo')
-                    ->label('Logo')
-                    ->circular()
-                    ->size(50)
-                    ->defaultImageUrl('/images/default-avatar.png'),
-
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->searchable()

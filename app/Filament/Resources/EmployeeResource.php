@@ -38,10 +38,12 @@ class EmployeeResource extends Resource
                 Forms\Components\Select::make('store_id')
                     ->label('Loja')
                     ->relationship('store', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\Select::make('user_id')
                     ->label('Usuário')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', fn (Builder $query) => $query->where('role', 'employee'))
                     ->searchable()
                     ->preload()
                     ->required(),

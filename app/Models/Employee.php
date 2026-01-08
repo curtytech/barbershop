@@ -13,8 +13,8 @@ class Employee extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'store_id',
+        'user_id',
         'name',
         'email',
         'position',
@@ -29,7 +29,6 @@ class Employee extends Model
         'whatsapp',
     ];
 
-    // ✅ RELAÇÃO QUE O FILAMENT PRECISA
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -43,5 +42,10 @@ class Employee extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
     }
 }
