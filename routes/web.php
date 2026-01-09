@@ -10,8 +10,8 @@ Route::get('/', function () {
 });
 
 Route::get('/', [HomeController::class, 'show'])->name('home.show');
+Route::get('/availability', [BarberController::class, 'availability'])->name('availability');
 Route::get('/{slug}', [BarberController::class, 'show'])->name('barber.show');
-
 
 Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');

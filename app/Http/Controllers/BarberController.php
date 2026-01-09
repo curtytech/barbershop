@@ -69,7 +69,8 @@ class BarberController extends Controller
         $dayOfWeek = strtolower(Carbon::parse($date)->englishDayOfWeek);
         
         // Check if service is available on this day
-        if ($service->day_of_week && $service->day_of_week !== $dayOfWeek) {
+        // days_of_week is now an array (casted in model)
+        if ($service->days_of_week && !in_array($dayOfWeek, $service->days_of_week)) {
              if (!$service->specific_date || $service->specific_date->format('Y-m-d') !== $date) {
                   return response()->json(['available_times' => []]);
              }
@@ -100,15 +101,16 @@ class BarberController extends Controller
             }
             
             if (!$isBreak) {
-                // Check existing appointments
                 $exists = Appointment::where('employee_id', $service->employee_id)
                     ->where('date', $date)
                     ->where('appointment_time', $startTime->format('H:i:s'))
+                    ->where('status', '!=', 'cancelled')
                     ->exists();
                     
-                if (!$exists) {
-                    $slots[] = $timeStr;
-                }
+                $slots[] = [
+                    'time' => $timeStr,
+                    'available' => !$exists
+                ];
             }
             
             $startTime->addMinutes($service->duration);

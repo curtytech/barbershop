@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->time('start_time');
             $table->time('end_time')->nullable();
-            $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])->nullable();
+            $table->json('days_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])->nullable();
             $table->date('specific_date')->nullable();
             $table->integer('duration')->default(30);
             $table->enum('type', ['available', 'break', 'lunch'])->default('available');

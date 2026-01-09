@@ -21,7 +21,7 @@ class StoreResource extends Resource
 
     protected static ?string $navigationLabel = 'Lojas';
 
-     public static function getLabel(): string
+    public static function getLabel(): string
     {
         return 'Loja';
     }
@@ -35,10 +35,14 @@ class StoreResource extends Resource
     {
         return $form
             ->schema([
+
                 Forms\Components\Select::make('user_id')
                     ->label('Usuário')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', fn(Builder $query) => $query->where('role', 'store'))
+                    ->searchable()
+                    ->preload()
                     ->required(),
+
                 Forms\Components\TextInput::make('name')
                     ->label('Nome')
                     ->required()
@@ -60,9 +64,9 @@ class StoreResource extends Resource
                 Forms\Components\FileUpload::make('image_banner')
                     ->label('Banner')
                     ->image(),
-                Forms\Components\ColorPicker::make('color_primary') ->label('Cor Primária'), 
-                Forms\Components\ColorPicker::make('color_secondary') ->label('Cor Secundária'),
-                Forms\Components\TextInput::make('zipcode') 
+                Forms\Components\ColorPicker::make('color_primary')->label('Cor Primária'),
+                Forms\Components\ColorPicker::make('color_secondary')->label('Cor Secundária'),
+                Forms\Components\TextInput::make('zipcode')
                     ->maxLength(255)
                     ->label('CEP'),
                 Forms\Components\TextInput::make('address')

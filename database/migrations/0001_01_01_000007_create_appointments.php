@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('service_id');
             $table->string('client_name');
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->index(['user_id', 'date', 'appointment_time']);
             $table->index(['service_id', 'date', 'appointment_time']);
             $table->index(['status']);
-            $table->unique(['user_id', 'date', 'appointment_time'], 'unique_user_date_time');
+            $table->unique(['employee_id', 'date', 'appointment_time'], 'unique_employee_date_time');
         });
     }
 

@@ -97,8 +97,8 @@ class ServiceResource extends Resource
                         Forms\Components\TimePicker::make('end_time')
                             ->label('Fim'),
 
-                        Forms\Components\Select::make('day_of_week')
-                            ->label('Dia da semana')
+                        Forms\Components\CheckboxList::make('days_of_week')
+                            ->label('Dias da semana')
                             ->options([
                                 'monday' => 'Segunda-feira',
                                 'tuesday' => 'Terça-feira',
@@ -108,7 +108,8 @@ class ServiceResource extends Resource
                                 'saturday' => 'Sábado',
                                 'sunday' => 'Domingo',
                             ])
-                            ->searchable(),
+                            ->columns(2)
+                            ->gridDirection('row'),
 
                         Forms\Components\DatePicker::make('specific_date')
                             ->label('Data específica'),

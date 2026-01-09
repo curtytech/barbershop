@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $store->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
@@ -201,6 +202,7 @@
                     
                     <!-- Informações de Contato -->
                     <input type="hidden" id="employee_id" name="employee_id">
+                    <div id="employee_id_error" class="text-red-500 text-sm mt-1 hidden">Erro ao identificar o funcionário. Tente recarregar a página.</div>
 
                     <!-- Informações de Contato -->
                     <div class="mb-4">
@@ -307,13 +309,21 @@
             noTimes.classList.add('hidden');
             setConfirmState(false);
     
-            times.forEach(t => {
+            times.forEach(slot => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100';
-                btn.setAttribute('data-time', t);
-                btn.textContent = t;
-                btn.addEventListener('click', () => handleTimeSlotClick(btn));
+                
+                if (slot.available) {
+                    btn.className = 'time-slot px-3 py-2 border border-gray-300 rounded-md text-center hover:bg-green-100';
+                    btn.setAttribute('data-time', slot.time);
+                    btn.textContent = slot.time;
+                    btn.addEventListener('click', () => handleTimeSlotClick(btn));
+                } else {
+                    btn.className = 'px-3 py-2 border border-gray-200 rounded-md text-center bg-gray-100 text-gray-400 cursor-not-allowed';
+                    btn.disabled = true;
+                    btn.textContent = slot.time;
+                }
+                
                 timeSlotsContainer.appendChild(btn);
             });
         }
@@ -454,9 +464,10 @@
             }
     
             const appointmentData = {
-                barber_id: document.getElementById('barber_id').value,
-                service_id: document.getElementById('service_id').value,
-                date: document.getElementById('date').value,
+            // barber_id removed as it is not used/needed
+            employee_id: document.getElementById('employee_id').value,
+            service_id: document.getElementById('service_id').value,
+            date: document.getElementById('date').value,
                 time: document.getElementById('time').value,
                 client_name: document.getElementById('client_name').value,
                 client_phone: document.getElementById('client_phone').value
