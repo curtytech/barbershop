@@ -99,7 +99,8 @@ class UserResource extends Resource
 
                         Forms\Components\DateTimePicker::make('email_verified_at')
                             ->label('E-mail Verificado em')
-                            ->helperText('Deixe vazio se o e-mail não foi verificado'),
+                            ->helperText('Deixe vazio se o e-mail não foi verificado')
+                             ->seconds(false),
                     ])
                     ->columns(2),
             ]);

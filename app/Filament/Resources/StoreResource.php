@@ -57,7 +57,10 @@ class StoreResource extends Resource
                 Forms\Components\TextInput::make('celphone')
                     ->label('Celular')
                     ->tel()
-                    ->maxLength(255),
+                    ->mask('(99) 99999-9999')
+                    ->placeholder('(21) 98765-4321')
+                    ->maxLength(15),
+
                 Forms\Components\FileUpload::make('image_logo')
                     ->label('Logo')
                     ->image(),
@@ -67,14 +70,22 @@ class StoreResource extends Resource
                 Forms\Components\ColorPicker::make('color_primary')->label('Cor Primária'),
                 Forms\Components\ColorPicker::make('color_secondary')->label('Cor Secundária'),
                 Forms\Components\TextInput::make('zipcode')
-                    ->maxLength(255)
-                    ->label('CEP'),
+                    ->label('CEP')
+                    ->tel()
+                    ->mask('99999-999')
+                    ->placeholder('12345-678')
+                    ->dehydrateStateUsing(fn ($state) => preg_replace('/\D/', '', $state))
+                    ->maxLength(9),
                 Forms\Components\TextInput::make('address')
                     ->maxLength(255)
                     ->label('Endereço'),
                 Forms\Components\TextInput::make('number')
-                    ->maxLength(255)
-                    ->label('Número'),
+                    ->label('Número')
+                    ->tel()
+                    ->mask('9999999999') 
+                    ->placeholder('123')
+                    ->dehydrateStateUsing(fn ($state) => preg_replace('/\D/', '', $state))
+                    ->maxLength(10),
                 Forms\Components\TextInput::make('neighborhood')
                     ->maxLength(255)
                     ->label('Bairro'),
@@ -101,19 +112,24 @@ class StoreResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Usuário')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('celphone')
+                    ->label('Celular')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('city')
+                    ->label('Cidade')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('state')
+                    ->label('Estado')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

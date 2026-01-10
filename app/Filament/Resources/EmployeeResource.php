@@ -55,10 +55,12 @@ class EmployeeResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('celphone')
+               Forms\Components\TextInput::make('celphone')
                     ->label('Celular')
                     ->tel()
-                    ->maxLength(255),
+                    ->mask('(99) 99999-9999')
+                    ->placeholder('(21) 98765-4321')
+                    ->maxLength(15),
                 Forms\Components\TextInput::make('position')
                     ->label('Cargo')
                     ->required()
@@ -95,15 +97,19 @@ class EmployeeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('store.name')
+                    ->label('Loja')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
+                    ->label('Função')
                     ->searchable(),       
                 Tables\Columns\TextColumn::make('celphone')
+                    ->label('Celular')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),

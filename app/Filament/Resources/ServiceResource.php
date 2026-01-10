@@ -92,11 +92,18 @@ class ServiceResource extends Resource
                     ->schema([
                         Forms\Components\TimePicker::make('start_time')
                             ->label('Início')
+                            ->seconds(false)
                             ->required(),
 
                         Forms\Components\TimePicker::make('end_time')
-                            ->label('Fim'),
-
+                            ->label('Fim')
+                            ->seconds(false)
+                            ->nullable()
+                            ->after('start_time')
+                            ->validationMessages([
+                                'after' => 'O horário de fim deve ser maior que o horário de início.',
+                            ]),
+                            
                         Forms\Components\CheckboxList::make('days_of_week')
                             ->label('Dias da semana')
                             ->options([
@@ -132,10 +139,16 @@ class ServiceResource extends Resource
                             ->required(),
 
                         Forms\Components\TimePicker::make('break_start')
-                            ->label('Início da pausa'),
+                            ->label('Início da pausa')
+                            ->seconds(false),
 
                         Forms\Components\TimePicker::make('break_end')
-                            ->label('Fim da pausa'),
+                            ->label('Fim da pausa')
+                            ->seconds(false)
+                            ->after('break_start')
+                            ->validationMessages([
+                                'after' => 'O fim da pausa deve ser maior que o início.',
+                            ]),
                     ])->columns(2),
             ]);
     }

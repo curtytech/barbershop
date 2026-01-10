@@ -158,7 +158,7 @@
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold text-gray-800">Agendar com {{ $store->name }}</h3>
-                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">   
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -213,7 +213,17 @@
                     
                     <div class="mb-4">
                         <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-                        <input type="tel" id="client_phone" name="client_phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                       <input
+                        type="tel"
+                        id="client_phone"
+                        name="client_phone"
+                        maxlength="15"
+                        inputmode="numeric"
+                        placeholder="(21) 98765-4321"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+
+
                         <div id="client_phone_error" class="text-red-500 text-sm mt-1 hidden">Por favor, informe seu telefone.</div>
                     </div>
                     
@@ -503,6 +513,42 @@
                 setConfirmState(true);
             });
         });
+
+       const phoneInput = document.getElementById('client_phone');
+
+        // Bloqueia letras e símbolos na digitação
+        phoneInput.addEventListener('keydown', function (e) {
+            const allowedKeys = [
+                'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'
+            ];
+
+            if (allowedKeys.includes(e.key)) return;
+
+            // Permite apenas números
+            if (!/^\d$/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // Sanitiza colagem (remove letras, símbolos etc)
+        phoneInput.addEventListener('input', function () {
+            let value = phoneInput.value.replace(/\D/g, '');
+
+            // Limita a 11 números (DDD + 9 dígitos)
+            value = value.slice(0, 11);
+
+            // Aplica máscara
+            if (value.length > 10) {
+                phoneInput.value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (value.length > 6) {
+                phoneInput.value = value.replace(/(\d{2})(\d{4})(\d+)/, '($1) $2-$3');
+            } else if (value.length > 2) {
+                phoneInput.value = value.replace(/(\d{2})(\d+)/, '($1) $2');
+            } else {
+                phoneInput.value = value;
+            }
+        });
+
     </script>
 </body>
 

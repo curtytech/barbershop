@@ -41,9 +41,6 @@
             <div class="text-white max-w-2xl">
                 <h2 class="text-5xl font-bold mb-6">Estilo e Precisão em Cada Corte</h2>
                 <p class="text-xl mb-8">Experimente o melhor serviço de barbearia da cidade com profissionais qualificados e ambiente exclusivo.</p>
-                <a href="{{ route('appointments.create') }}" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center">
-                    <i class="fas fa-calendar-alt mr-2"></i> Agendar Agora
-                </a>
             </div>
         </div>
     </section>
@@ -81,11 +78,6 @@
                     <h3 class="text-xl font-bold mb-2">Combo</h3>
                     <p class="text-gray-600">Corte e barba com preço especial.</p>
                 </div>
-            </div>
-            <div class="text-center mt-12">
-                <a href="{{ route('appointments.create') }}" class="bg-black hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 ease-in-out inline-flex items-center">
-                    <i class="fas fa-calendar-check mr-2"></i> Agende seu Horário
-                </a>
             </div>
         </div>
     </section>
