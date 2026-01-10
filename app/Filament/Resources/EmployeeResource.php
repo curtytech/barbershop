@@ -102,9 +102,7 @@ class EmployeeResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable(),       
                 Tables\Columns\TextColumn::make('celphone')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
