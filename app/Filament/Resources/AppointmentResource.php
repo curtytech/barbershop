@@ -33,28 +33,13 @@ class AppointmentResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informações do Agendamento')
                     ->schema([
-                        Forms\Components\Select::make('store_id')
-                            ->label('Responsável / Loja')
-                            ->options(\App\Models\Store::pluck('name', 'id'))
-                            ->required() 
-                            ->searchable()
-                            ->reactive()
-                            ->afterStateUpdated(fn ($set) => $set('employee_id', null)),
-
-                       Forms\Components\Select::make('employee_id')
+                        Forms\Components\Select::make('user_id')
                             ->label('Profissional')
-                            ->options(function ($get) {
-                                if (!$get('store_id')) {
-                                    return [];
-                                }
-
-                                return \App\Models\Employee::where('store_id', $get('store_id'))
-                                    ->pluck('name', 'id');
-                            })
+                            ->options(User::all()->pluck('name', 'id'))
                             ->required()
                             ->searchable()
-                            ->disabled(fn ($get) => !$get('store_id')),
-
+                            ->live(),
+                            
                         Forms\Components\Select::make('service_id')
                             ->label('Serviço')
                             ->options(Service::all()->pluck('name', 'id'))
@@ -89,42 +74,12 @@ class AppointmentResource extends Resource
                             ->minDate(now())
                             ->live(),
                             
-                         Forms\Components\Select::make('appointment_time')
+                        Forms\Components\TimePicker::make('appointment_time')
                             ->label('Horário')
                             ->required()
-                            ->options(function (callable $get) {
-
-                                if (! $get('employee_id') || ! $get('date')) {
-                                    return [];
-                                }
-
-                                $times = [];
-
-                                // Exemplo: 08:00 às 18:00
-                                $start = Carbon::createFromTime(8, 0);
-                                $end   = Carbon::createFromTime(18, 0);
-
-                                while ($start < $end) {
-                                    $time = $start->format('H:i');
-
-                                    if (
-                                        \App\Services\AppointmentAvailabilityService::isAvailable(
-                                            $get('employee_id'),
-                                            $get('date'),
-                                            $time
-                                        )
-                                    ) {
-                                        $times[$time] = $time;
-                                    }
-
-                                    $start->addMinutes(15);
-                                }
-
-                                return $times;
-                            })
-                            ->disabled(fn ($get) => ! $get('employee_id') || ! $get('date'))
-                            ->helperText('Horários disponíveis já com intervalo de 1h aplicado'),
-
+                            ->seconds(false)
+                            ->minutesStep(15)
+                            ->helperText('Horários disponíveis de acordo com a agenda do profissional'),
                     ])
                     ->columns(2),
                     
@@ -164,7 +119,7 @@ class AppointmentResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                     
-                Tables\Columns\TextColumn::make('employee.name')
+                Tables\Columns\TextColumn::make('user.name')
                     ->label('Profissional')
                     ->sortable()
                     ->searchable(),
@@ -255,13 +210,9 @@ class AppointmentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('employee_id')
-                    ->label('Profissional')
-                    ->relationship('employee', 'name'),
-
                 Tables\Filters\SelectFilter::make('user_id')
-                    ->label('Responsável')
-                    ->relationship('user', 'name'),
+                    ->label('Profissional')
+                    ->options(User::all()->pluck('name', 'id')),
                     
                 Tables\Filters\SelectFilter::make('service_id')
                     ->label('Serviço')
