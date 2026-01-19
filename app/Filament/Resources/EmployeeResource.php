@@ -31,13 +31,36 @@ class EmployeeResource extends Resource
         return 'Funcionários';
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user->role === 'store') {
+            $storeIds = $user->stores()->pluck('id');
+            return $query->whereIn('store_id', $storeIds);
+        }
+
+        if ($user->role === 'employee') {
+            return $query->where('user_id', $user->id);
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
 {
         return $form
             ->schema([
                 Forms\Components\Select::make('store_id')
                     ->label('Loja')
-                    ->relationship('store', 'name')
+                    ->relationship('store', 'name', function (Builder $query) {
+                        $user = auth()->user();
+                        if ($user->role === 'store') {
+                            return $query->whereIn('id', $user->stores()->pluck('id'));
+                        }
+                        return $query;
+                    })
                     ->searchable()
                     ->preload()
                     ->required(),

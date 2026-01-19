@@ -31,6 +31,24 @@ class StoreResource extends Resource
         return 'Lojas';
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user->role === 'store') {
+            return $query->where('user_id', $user->id);
+        }
+
+        if ($user->role === 'employee') {
+            return $query->whereHas('employees', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

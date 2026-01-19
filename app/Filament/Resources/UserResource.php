@@ -25,6 +25,28 @@ class UserResource extends Resource
     protected static ?string $modelLabel = 'Usuário';
     protected static ?string $pluralModelLabel = 'Usuários';
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user->role === 'store') {
+            $storeIds = $user->stores()->pluck('id');
+            return $query->where(function ($q) use ($user, $storeIds) {
+                $q->where('id', $user->id)
+                  ->orWhereHas('employees', function ($q) use ($storeIds) {
+                      $q->whereIn('store_id', $storeIds);
+                  });
+            });
+        }
+
+        if ($user->role === 'employee') {
+            return $query->where('id', $user->id);
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

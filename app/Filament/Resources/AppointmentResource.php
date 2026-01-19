@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AppointmentResource\Pages;
+use App\Models\Employee;
 use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Service;
@@ -27,25 +28,56 @@ class AppointmentResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Agendamentos';
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user->role === 'store') {
+            $storeIds = $user->stores()->pluck('id');
+            return $query->whereHas('employee', function ($q) use ($storeIds) {
+                $q->whereIn('store_id', $storeIds);
+            });
+        }
+
+        if ($user->role === 'employee') {
+            $employeeIds = $user->employees()->pluck('id');
+            return $query->whereIn('employee_id', $employeeIds);
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Section::make('Informações do Agendamento')
                     ->schema([
-                        Forms\Components\Select::make('user_id')
+                        Forms\Components\Select::make('employee_id')
                             ->label('Profissional')
-                            ->options(User::all()->pluck('name', 'id'))
+                            ->options(function () {
+                                $user = auth()->user();
+                                if ($user->role === 'employee') {
+                                    return $user->employees()->pluck('name', 'id');
+                                }
+                                if ($user->role === 'store') {
+                                    return Employee::whereIn('store_id', $user->stores()->pluck('id'))->pluck('name', 'id');
+                                }
+                                return Employee::all()->pluck('name', 'id');
+                            })
                             ->required()
                             ->searchable()
-                            ->live(),
+                            ->live()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('service_id', null)),
                             
                         Forms\Components\Select::make('service_id')
                             ->label('Serviço')
-                            ->options(Service::all()->pluck('name', 'id'))
+                            ->options(fn (Forms\Get $get) => Service::where('employee_id', $get('employee_id'))->pluck('name', 'id'))
                             ->required()
                             ->searchable()
-                            ->live(),
+                            ->live()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('appointment_time', null)),
                             
                         Forms\Components\TextInput::make('client_name')
                             ->label('Nome do Cliente')
@@ -72,13 +104,71 @@ class AppointmentResource extends Resource
                             ->label('Data do Agendamento')
                             ->required()
                             ->minDate(now())
-                            ->live(),
+                            ->live()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('appointment_time', null)),
                             
-                        Forms\Components\TimePicker::make('appointment_time')
+                        Forms\Components\Select::make('appointment_time')
                             ->label('Horário')
                             ->required()
-                            ->seconds(false)
-                            ->minutesStep(15)
+                            ->options(function (Forms\Get $get) {
+                                $employeeId = $get('employee_id');
+                                $serviceId = $get('service_id');
+                                $date = $get('date');
+
+                                if (!$employeeId || !$serviceId || !$date) {
+                                    return [];
+                                }
+
+                                $service = Service::find($serviceId);
+                                if (!$service) return [];
+
+                                $dayOfWeek = strtolower(Carbon::parse($date)->englishDayOfWeek);
+                                
+                                if ($service->days_of_week && !in_array($dayOfWeek, $service->days_of_week)) {
+                                    if (!$service->specific_date || $service->specific_date->format('Y-m-d') !== $date) {
+                                        return [];
+                                    }
+                                }
+
+                                $startTime = Carbon::parse($date . ' ' . $service->start_time->format('H:i:s'));
+                                $endTime = Carbon::parse($date . ' ' . ($service->end_time ? $service->end_time->format('H:i:s') : '23:59:59'));
+                                
+                                $bookedTimes = Appointment::whereDate('date', $date)
+                                    ->where('status', '!=', 'cancelled')
+                                    ->where(function ($query) use ($service) {
+                                        $query->where('employee_id', $service->employee_id)
+                                              ->orWhere('service_id', $service->id);
+                                    })
+                                    ->get()
+                                    ->map(function ($appointment) {
+                                        return \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i');
+                                    })
+                                    ->toArray();
+
+                                $slots = [];
+                                while ($startTime->copy()->addMinutes($service->duration)->lte($endTime)) {
+                                    $slotEnd = $startTime->copy()->addMinutes($service->duration);
+                                    $timeStr = $startTime->format('H:i');
+                                    
+                                    $isBreak = false;
+                                    if ($service->break_start && $service->break_end) {
+                                        $breakStart = Carbon::parse($date . ' ' . $service->break_start->format('H:i:s'));
+                                        $breakEnd = Carbon::parse($date . ' ' . $service->break_end->format('H:i:s'));
+                                        
+                                        if ($startTime->lt($breakEnd) && $slotEnd->gt($breakStart)) {
+                                            $isBreak = true;
+                                        }
+                                    }
+                                    
+                                    if (!$isBreak && !in_array($timeStr, $bookedTimes)) {
+                                        $slots[$timeStr] = $timeStr;
+                                    }
+                                    
+                                    $startTime->addMinutes($service->duration);
+                                }
+                                
+                                return $slots;
+                            })
                             ->helperText('Horários disponíveis de acordo com a agenda do profissional'),
                     ])
                     ->columns(2),
@@ -119,7 +209,7 @@ class AppointmentResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                     
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('employee.name')
                     ->label('Profissional')
                     ->sortable()
                     ->searchable(),
@@ -210,9 +300,18 @@ class AppointmentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('user_id')
+                Tables\Filters\SelectFilter::make('employee_id')
                     ->label('Profissional')
-                    ->options(User::all()->pluck('name', 'id')),
+                    ->options(function () {
+                        $user = auth()->user();
+                        if ($user->role === 'employee') {
+                            return $user->employees()->pluck('name', 'id');
+                        }
+                        if ($user->role === 'store') {
+                            return Employee::whereIn('store_id', $user->stores()->pluck('id'))->pluck('name', 'id');
+                        }
+                        return Employee::all()->pluck('name', 'id');
+                    }),
                     
                 Tables\Filters\SelectFilter::make('service_id')
                     ->label('Serviço')

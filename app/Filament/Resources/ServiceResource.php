@@ -31,6 +31,27 @@ class ServiceResource extends Resource
     
     protected static ?int $navigationSort = 2;
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user->role === 'store') {
+            $storeIds = $user->stores()->pluck('id');
+            return $query->whereHas('employee', function ($q) use ($storeIds) {
+                $q->whereIn('store_id', $storeIds);
+            });
+        }
+
+        if ($user->role === 'employee') {
+            return $query->whereHas('employee', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -46,7 +67,16 @@ class ServiceResource extends Resource
                         
                         Forms\Components\Select::make('employee_id')
                             ->label('Funcionário')
-                            ->relationship('employee', 'name')
+                            ->relationship('employee', 'name', function (Builder $query) {
+                                $user = auth()->user();
+                                if ($user->role === 'store') {
+                                    return $query->whereIn('store_id', $user->stores()->pluck('id'));
+                                }
+                                if ($user->role === 'employee') {
+                                    return $query->where('user_id', $user->id);
+                                }
+                                return $query;
+                            })
                             ->required()
                             ->searchable()
                             ->preload(),
