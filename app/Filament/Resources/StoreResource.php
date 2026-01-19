@@ -56,7 +56,13 @@ class StoreResource extends Resource
 
                 Forms\Components\Select::make('user_id')
                     ->label('Usuário')
-                    ->relationship('user', 'name', fn(Builder $query) => $query->where('role', 'store'))
+                    ->relationship('user', 'name', function (Builder $query) {
+                        $user = auth()->user();
+                        if ($user->role === 'store') {
+                            return $query->where('id', $user->id);
+                        }
+                        return $query->where('role', 'store');
+                    })
                     ->searchable()
                     ->preload()
                     ->required(),
