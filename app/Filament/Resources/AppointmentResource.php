@@ -420,11 +420,15 @@ class AppointmentResource extends Resource
         ];
     }
 
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListAppointments::route('/'),
-            'create' => Pages\CreateAppointment::route('/create'),
             'view' => Pages\ViewAppointment::route('/{record}'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];

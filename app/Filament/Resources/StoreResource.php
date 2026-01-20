@@ -70,20 +70,25 @@ class StoreResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->label('Nome')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', \Illuminate\Support\Str::slug($state)) : null),
                 Forms\Components\TextInput::make('slug')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true),
                 Forms\Components\TextInput::make('celphone')
                     ->label('Celular')
                     ->tel()
                     ->mask('(99) 99999-9999')
                     ->placeholder('(21) 98765-4321')
-                    ->maxLength(15),
+                    ->maxLength(15)
+                    ->unique(ignoreRecord: true),
 
                 Forms\Components\FileUpload::make('image_logo')
                     ->label('Logo')
@@ -91,8 +96,14 @@ class StoreResource extends Resource
                 Forms\Components\FileUpload::make('image_banner')
                     ->label('Banner')
                     ->image(),
-                Forms\Components\ColorPicker::make('color_primary')->label('Cor Primária'),
-                Forms\Components\ColorPicker::make('color_secondary')->label('Cor Secundária'),
+                Forms\Components\ColorPicker::make('color_primary')
+                    ->label('Cor Primária')
+                    ->required()
+                    ->default('#0000FF'),
+                Forms\Components\ColorPicker::make('color_secondary')
+                    ->label('Cor Secundária')
+                    ->required()
+                    ->default('#000000'),
                 Forms\Components\TextInput::make('zipcode')
                     ->label('CEP')
                     ->tel()
