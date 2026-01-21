@@ -135,6 +135,12 @@
                 <p>&copy; 2023 Barbershop. Todos os direitos reservados.</p>
             </div>
         </div>
+
+        <?php
+        date_default_timezone_set(date_default_timezone_get());
+        echo date('d/m/Y H:i:s');
+        
+        ?>
     </footer>
 </body>
 
