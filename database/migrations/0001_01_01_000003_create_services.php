@@ -27,9 +27,7 @@ return new class extends Migration
             $table->time('break_start')->nullable();
             $table->time('break_end')->nullable();
             $table->timestamps();
-            $table->index(['employee_id', 'day_of_week']);
             $table->index(['employee_id', 'specific_date']);
-            $table->unique(['employee_id', 'day_of_week', 'start_time'], 'unique_employee_day_time');
         });
     }
 
