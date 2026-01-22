@@ -21,7 +21,6 @@
             </div>
             <nav class="hidden md:flex space-x-8">
                 <a href="#" class="hover:text-amber-400 transition">Home</a>
-                <a href="#" class="hover:text-amber-400 transition">Serviços</a>
                 <a href="#stores" class="hover:text-amber-400 transition">Lojas</a>
                 <a href="#" class="hover:text-amber-400 transition">Contato</a>
                 <a href="/admin" class="hover:text-amber-400 transition">Área do Restrita</a>

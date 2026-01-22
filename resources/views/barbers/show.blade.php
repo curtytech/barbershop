@@ -39,9 +39,6 @@
             <div class="text-white max-w-2xl">
                 <h2 class="text-5xl font-bold mb-6">Estilo e Precisão em Cada Corte</h2>
                 <p class="text-xl mb-8">Experimente o melhor serviço de barbearia da cidade com profissionais qualificados e ambiente exclusivo.</p>
-                <a href="{{ route('appointments.create') }}" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center">
-                    <i class="fas fa-calendar-alt mr-2"></i> Agendar Agora
-                </a>
             </div>
         </div>
     </section>
@@ -373,18 +370,22 @@
                 });
         }
 
-        // Abrir Modal
-        openModalBtn.addEventListener('click', function() {
-            modal.classList.remove('hidden');
-            setConfirmState(false);
-            loadAvailableTimes();
-        });
+       // Abrir Modal
+if (openModalBtn) {
+    openModalBtn.addEventListener('click', function () {
+        modal.classList.remove('hidden');
+        setConfirmState(false);
+        loadAvailableTimes();
+    });
+}
 
-        openModalBtnServices.addEventListener('click', function() {
-            modal.classList.remove('hidden');
-            setConfirmState(false);
-            loadAvailableTimes();
-        });
+if (openModalBtnServices) {
+    openModalBtnServices.addEventListener('click', function () {
+        modal.classList.remove('hidden');
+        setConfirmState(false);
+        loadAvailableTimes();
+    });
+}
 
         // Fechar Modal
         closeModalBtn.addEventListener('click', function() {
