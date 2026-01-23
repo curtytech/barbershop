@@ -151,94 +151,121 @@
     </a>
     <!-- Modal de Agendamento -->
     <div id="appointmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-gray-800">Agendar com {{ $store->name }}</h3>
-                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] flex flex-col">
+
+        <!-- HEADER FIXO -->
+        <div class="p-6 border-b flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-gray-800">
+                Agendar com {{ $store->name }}
+            </h3>
+            <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- CONTEÚDO COM SCROLL -->
+        <div class="p-6 overflow-y-auto flex-1">
+
+            <form id="appointmentForm">
+
+                <!-- Seleção de Serviço -->
+                <div class="mb-4">
+                    <label for="service_id" class="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
+                    <select id="service_id" name="service_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Selecione um serviço</option>
+                        @foreach ($employees as $employee)
+                        <optgroup label="{{ $employee->name }}">
+                            @foreach ($employee->services as $service)
+                            <option value="{{ $service->id }}" data-employee-id="{{ $employee->id }}">
+                                {{ $service->name }} - {{ $service->formatted_price }}
+                            </option>
+                            @endforeach
+                        </optgroup>
+                        @endforeach
+                    </select>
+                    <div id="service_id_error" class="text-red-500 text-sm mt-1 hidden">
+                        Por favor, selecione um serviço.
+                    </div>
                 </div>
 
-                <!-- Formulário de Agendamento -->
-                <form id="appointmentForm">
-                    <!-- Campo oculto para o ID do barbeiro (Removido) -->
-                    <!-- <input type="hidden" id="barber_id" name="barber_id" value="{{ $store->id }}"> -->
+                <!-- Seleção de Data -->
+                <div class="mb-4">
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                    <input type="date" id="date" name="date" min="{{ date('Y-m-d') }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <div id="date_error" class="text-red-500 text-sm mt-1 hidden">
+                        Por favor, selecione uma data.
+                    </div>
+                </div>
 
-                    <!-- Seleção de Serviço -->
-                    <div class="mb-4">
-                        <label for="service_id" class="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
-                        <select id="service_id" name="service_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="">Selecione um serviço</option>
-                            @foreach ($employees as $employee)
-                            <optgroup label="{{ $employee->name }}">
-                                @foreach ($employee->services as $service)
-                                <option value="{{ $service->id }}" data-employee-id="{{ $employee->id }}">{{ $service->name }} - {{ $service->formatted_price }}</option>
-                                @endforeach
-                            </optgroup>
-                            @endforeach
-                        </select>
-                        <div id="service_id_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um serviço.</div>
+                <!-- Seleção de Horário -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                    <input type="hidden" id="time" name="time">
+
+                    <!-- GRID COM SCROLL PRÓPRIO -->
+                    <div id="time_slots"
+                        class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto border rounded-md p-2">
                     </div>
 
-                    <!-- Seleção de Data -->
-                    <div class="mb-4">
-                        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
-                        <input type="date" id="date" name="date" min="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <div id="date_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione uma data.</div>
+                    <div id="no_times" class="text-gray-600 text-sm mt-2 hidden">
+                        Nenhum horário disponível para a data selecionada.
                     </div>
-
-                    <!-- Seleção de Horário -->
-                    <div class="mb-4">
-                        <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Horário</label>
-                        <input type="hidden" id="time" name="time" value="">
-                        <div id="time_slots" class="grid grid-cols-3 gap-2"></div>
-                        <div id="no_times" class="text-gray-600 text-sm mt-2 hidden">Nenhum horário disponível para a data selecionada.</div>
-                        <div id="time_error" class="text-red-500 text-sm mt-1 hidden">Por favor, selecione um horário.</div>
+                    <div id="time_error" class="text-red-500 text-sm mt-1 hidden">
+                        Por favor, selecione um horário.
                     </div>
+                </div>
 
-                    <!-- Informações de Contato -->
-                    <input type="hidden" id="employee_id" name="employee_id">
-                    <div id="employee_id_error" class="text-red-500 text-sm mt-1 hidden">Erro ao identificar o funcionário. Tente recarregar a página.</div>
+                <!-- Hidden -->
+                <input type="hidden" id="employee_id" name="employee_id">
+                <div id="employee_id_error" class="text-red-500 text-sm mt-1 hidden">
+                    Erro ao identificar o funcionário. Tente recarregar a página.
+                </div>
 
-                    <!-- Informações de Contato -->
-                    <div class="mb-4">
-                        <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">Seu Nome</label>
-                        <input type="text" id="client_name" name="client_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <div id="client_name_error" class="text-red-500 text-sm mt-1 hidden">Por favor, informe seu nome.</div>
+                <!-- Nome -->
+                <div class="mb-4">
+                    <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">Seu Nome</label>
+                    <input type="text" id="client_name" name="client_name"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <div id="client_name_error" class="text-red-500 text-sm mt-1 hidden">
+                        Por favor, informe seu nome.
                     </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-                        <input
-                            type="tel"
-                            id="client_phone"
-                            name="client_phone"
-                            maxlength="15"
-                            inputmode="numeric"
-                            placeholder="(21) 98765-4321"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-
-
-                        <div id="client_phone_error" class="text-red-500 text-sm mt-1 hidden">Por favor, informe seu telefone.</div>
+                <!-- Telefone -->
+                <div class="mb-4">
+                    <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                    <input type="tel" id="client_phone" name="client_phone" maxlength="15" inputmode="numeric"
+                        placeholder="(21) 98765-4321"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <div id="client_phone_error" class="text-red-500 text-sm mt-1 hidden">
+                        Por favor, informe seu telefone.
                     </div>
+                </div>
 
-                    <!-- Botão de Confirmação -->
-                    <button type="button" id="confirmAppointment" class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200">
-                        Confirmar Agendamento
-                    </button>
+                <!-- BOTÃO -->
+                <button type="button" id="confirmAppointment"
+                    class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-200">
+                    Confirmar Agendamento
+                </button>
 
-                    <!-- Mensagem de sucesso/erro -->
-                    <div id="appointment_success" class="mt-4 p-3 bg-green-100 text-green-700 rounded-md hidden">
-                        Agendamento realizado com sucesso!
-                    </div>
-                    <div id="appointment_error" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden">
-                        Ocorreu um erro ao realizar o agendamento. Tente novamente.
-                    </div>
-                </form>
-            </div>
+                <!-- Feedback -->
+                <div id="appointment_success"
+                    class="mt-4 p-3 bg-green-100 text-green-700 rounded-md hidden">
+                    Agendamento realizado com sucesso!
+                </div>
+
+                <div id="appointment_error"
+                    class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden">
+                    Ocorreu um erro ao realizar o agendamento. Tente novamente.
+                </div>
+
+            </form>
         </div>
     </div>
+</div>
+
 
     <script>
         // Inicialização do Swiper

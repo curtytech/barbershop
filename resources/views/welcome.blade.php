@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbershop - Seu Estilo, Nossa Especialidade</title>
+    <title>StyleYou  - Seu Estilo, Nossa Especialidade</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -15,8 +15,8 @@
     <!-- Header/Navbar -->
     <header class="bg-black text-white shadow-lg">
         <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-            <div class="flex items-center">
-                <h1 class="text-2xl font-bold">Barbershop</h1>
+            <div class="flex items-center"> 
+                <h1 class="text-2xl font-bold">StyleYou</h1>
                 <img src="../../favicon.ico" class="mb-1.5 ml-3 h-20 w-auto object-contain" alt="Logo">
             </div>
             <nav class="hidden md:flex space-x-8">
