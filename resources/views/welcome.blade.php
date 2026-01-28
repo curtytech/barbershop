@@ -105,7 +105,7 @@
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h3 class="text-xl font-bold mb-4">Barbershop</h3>
+                    <h3 class="text-xl font-bold mb-4">StyleYou</h3>
                     <p class="mb-4">Seu estilo, nossa especialidade. Venha conhecer o melhor serviço de barbearia da cidade.</p>
                     <div class="flex space-x-4">
                         <a href="#" class="text-white hover:text-amber-400"><i class="fab fa-facebook-f"></i></a>
@@ -131,7 +131,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p>&copy; 2023 Barbershop. Todos os direitos reservados.</p>
+                <p>&copy; 2023 StyleYou. Todos os direitos reservados.</p>
             </div>
         </div>
 

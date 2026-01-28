@@ -17,7 +17,7 @@
     <header class="bg-black text-white shadow-lg">
         <div class="container mx-auto px-4 py-6 flex justify-between items-center">
             <div class="flex items-center">
-                <a href="/" class="text-2xl font-bold">Barbershop</a>
+                <a href="/" class="text-2xl font-bold">StyleYou</a>
             </div>
             <nav class="hidden md:flex space-x-8">
                 <a href="/" class="hover:text-amber-400 transition">Home</a>
@@ -607,7 +607,7 @@ if (openModalBtnServices) {
     <div class="container mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-                <h3 class="text-xl font-bold mb-4">Barbershop</h3>
+                <h3 class="text-xl font-bold mb-4">StyleYou</h3>
                 <p class="mb-4">Seu estilo, nossa especialidade. Venha conhecer o melhor serviço de barbearia da cidade.</p>
                 <div class="flex space-x-4">
                     <a href="#" class="text-white hover:text-amber-400"><i class="fab fa-facebook-f"></i></a>
@@ -633,7 +633,7 @@ if (openModalBtnServices) {
             </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-            <p>&copy; {{ date('Y') }} Barbershop. Todos os direitos reservados.</p>
+            <p>&copy; {{ date('Y') }} StyleYou. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
